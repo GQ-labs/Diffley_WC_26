@@ -1,0 +1,26 @@
+{
+  "meta": {
+    "title": "Diffley Lab WC 26",
+    "season": 2026,
+    "source": "World Cup 26.docx",
+    "updated": "2026-06-15"
+  },
+  "players": [
+  { "id": "AB", "teams": ["Iran", "Switzerland", "Croatia"] },
+  { "id": "AE", "teams": ["Belgium", "Spain", "South Africa"] },
+  { "id": "BC", "teams": ["Brazil", "Iraq", "Argentina"] },
+  { "id": "CT", "teams": ["USA", "Saudi Arabia", "Senegal"] },
+  { "id": "EE", "teams": ["Turkey", "Germany", "Uzbekistan"] },
+  { "id": "FB", "teams": ["England", "France", "Curacao"] },
+  { "id": "FW", "teams": ["Sweden", "Scotland", "Portugal"] },
+  { "id": "GL", "teams": ["Czechia", "Algeria", "Ghana"] },
+  { "id": "JD", "teams": ["Australia", "Morocco", "Qatar"] },
+  { "id": "KW", "teams": ["Japan", "Egypt", "New Zealand"] },
+  { "id": "LD", "teams": ["Colombia", "Uruguay", "Bosnia"] },
+  { "id": "NH", "teams": ["Panama", "Paraguay", "Tunisia"] },
+  { "id": "SG", "teams": ["Ecuador", "Jordan", "Austria"] },
+  { "id": "SW", "teams": ["Congo", "Canada", "Cape Verde"] },
+  { "id": "TM", "teams": ["Haiti", "Netherlands", "Ivory Coast"] },
+  { "id": "YH", "teams": ["Korea", "Norway", "Mexico"] }
+  ]
+}
