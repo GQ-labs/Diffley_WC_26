@@ -20,7 +20,7 @@ No install, login, or technical setup required.
 
 ---
 
-## For the admin (Samson)
+## For the admin
 
 ### Local development
 
