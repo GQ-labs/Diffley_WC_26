@@ -17,6 +17,7 @@ import { readMatchesCache, writeMatchesCache } from '../lib/cache';
 import { buildFixtureRows, countFinalFixtures, type FixtureRow } from '../lib/fixtures';
 import { countAppliedOverrides } from '../lib/overrides';
 import { loadTournamentMatches } from '../lib/results';
+import { resolveCurrentMatch, type CurrentMatch } from '../lib/liveMatch';
 import type { NormalizedMatch } from '../lib/types/match';
 import {
   draftConfig,
@@ -40,6 +41,8 @@ interface TournamentContextValue {
   teams: RankedTeamStanding[];
   fixtures: FixtureRow[];
   playedCount: number;
+  currentMatch: CurrentMatch | null;
+  liveMatchUpdated: Date | null;
   refresh: () => Promise<void>;
 }
 
@@ -68,6 +71,8 @@ export function TournamentProvider({ children }: { children: ReactNode }) {
   const [warning, setWarning] = useState<string | null>(null);
   const [dataSource, setDataSource] = useState<DataSource>('none');
   const [data, setData] = useState(() => computeState([], null));
+  const [currentMatch, setCurrentMatch] = useState<CurrentMatch | null>(null);
+  const [liveMatchUpdated, setLiveMatchUpdated] = useState<Date | null>(null);
 
   const load = useCallback(async (isRefresh = false) => {
     if (isRefresh) setRefreshing(true);
@@ -122,6 +127,30 @@ export function TournamentProvider({ children }: { children: ReactNode }) {
     void load(false);
   }, [load]);
 
+  useEffect(() => {
+    let cancelled = false;
+
+    const pollLive = async () => {
+      const live = await resolveCurrentMatch(data.matches);
+      if (cancelled) return;
+      setCurrentMatch(live);
+      setLiveMatchUpdated(new Date());
+    };
+
+    void pollLive();
+    const interval = setInterval(() => void pollLive(), 30_000);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, [data.matches]);
+
+  useEffect(() => {
+    if (!currentMatch?.isLive) return;
+    const interval = setInterval(() => void load(true), 45_000);
+    return () => clearInterval(interval);
+  }, [currentMatch?.isLive, load]);
+
   const value = useMemo<TournamentContextValue>(
     () => ({
       loading,
@@ -136,9 +165,11 @@ export function TournamentProvider({ children }: { children: ReactNode }) {
       teams: data.teams,
       fixtures: data.fixtures,
       playedCount: data.playedCount,
+      currentMatch,
+      liveMatchUpdated,
       refresh: () => load(true),
     }),
-    [loading, refreshing, error, warning, dataSource, data, load],
+    [loading, refreshing, error, warning, dataSource, data, load, currentMatch, liveMatchUpdated],
   );
 
   return (

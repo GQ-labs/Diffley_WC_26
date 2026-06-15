@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { useTournament } from '../../context/TournamentContext';
 import { milestoneLabels } from '../../lib/labels';
 import { getUpcomingMatchday } from '../../lib/upcomingMatches';
-import { getLatestResult } from '../../lib/recentMatch';
+import { getLatestResults } from '../../lib/recentMatch';
 import type { RankedPlayerStanding } from '../../lib/aggregate';
 import { IconChevronDown } from '../icons/IconChevronDown';
 import { PageHeader } from '../layout/TabNav';
@@ -10,7 +10,8 @@ import { PlayerFilter } from '../ui/PlayerFilter';
 import { LoadingState } from '../ui/LoadingState';
 import { ErrorState, EmptyState } from '../ui/StatusMessage';
 import { UpcomingMatchesCard } from '../ui/UpcomingMatchesCard';
-import { LastResultCard } from '../ui/LastResultCard';
+import { CurrentMatchCard } from '../ui/CurrentMatchCard';
+import { RecentResultsCard } from '../ui/RecentResultsCard';
 import cardStyles from '../ui/InfoCard.module.css';
 import tableStyles from '../ui/DataTable.module.css';
 import { DataTable } from '../ui/DataTable';
@@ -26,7 +27,7 @@ export function LeaderboardTab({
   playerFilter,
   onPlayerFilterChange,
 }: LeaderboardTabProps) {
-  const { loading, error, players, matches, playedCount, refresh } =
+  const { loading, error, players, matches, playedCount, refresh, currentMatch, liveMatchUpdated } =
     useTournament();
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
@@ -37,7 +38,7 @@ export function LeaderboardTab({
 
   const leader = players[0];
   const leaderId = leader?.id;
-  const latestResult = useMemo(() => getLatestResult(matches), [matches]);
+  const latestResults = useMemo(() => getLatestResults(matches, 3), [matches]);
   const upcoming = useMemo(() => getUpcomingMatchday(matches), [matches]);
 
   if (loading && players.length === 0) {
@@ -61,7 +62,13 @@ export function LeaderboardTab({
       {!playerFilter && (
         <div className={cardStyles.grid}>
           <UpcomingMatchesCard upcoming={upcoming} />
-          {latestResult && <LastResultCard result={latestResult} />}
+          <div className={cardStyles.resultsColumn}>
+            <CurrentMatchCard
+              match={currentMatch}
+              lastUpdated={liveMatchUpdated}
+            />
+            <RecentResultsCard results={latestResults} />
+          </div>
         </div>
       )}
 
