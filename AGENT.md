@@ -191,3 +191,5 @@ npm run validate     # Check draft.json
 ## Contact / ownership
 
 Internal Diffley lab project. Admin: Samson (GitHub host).
+
+**Git workflow:** Samson does not commit or push manually. Agents make changes locally, then `git add`, `commit`, and `push` to `main` when a task is complete (deploy is automatic via GitHub Actions).
