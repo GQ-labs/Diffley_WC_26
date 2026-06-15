@@ -61,18 +61,15 @@ Do not add UI libraries (MUI, Chakra, etc.) unless explicitly requested.
 
 ### Knockout milestone
 
-**Do not compute group standings or R32 qualifiers.** openfootball does not ship group tables — only matches. R32 fixtures start as placeholders (`2A`, `3A/B/C/D/F`) and are updated to real team names when the bracket is set.
-
-Bonus from fixture data in `src/lib/milestones.ts`:
+**Cumulative** — each tier adds to the running total when a team advances:
 
 ```
-groupExit: 0, roundOf32: 1, roundOf16: 2, quarterFinal: 3,
-semiFinal: 5, final: 6, winner: 8
+roundOf32: +2, roundOf16: +4, quarterFinal: +6, semiFinal: +8  (max 20)
 ```
 
-- R32 (+1): canonical team name appears in a Round of 32 match (covers top-two and best-third qualifiers once openfootball fills the slot)
+- R32 (+2): canonical team name appears in a Round of 32 match
 - Later stages: slotted into next-round fixture or won previous knockout tie
-- Winner (+8): only after winning the Final
+- Final / winner: no extra knockout bonus beyond semi-final tier
 
 Never infer qualification from group results.
 
@@ -157,7 +154,6 @@ Add mapping in `data/team-aliases.json` under `aliases`.
 - Do not add a backend or auth unless user requests
 - Do not use emoji flags or emoji anywhere
 - Do not use icon font packs — SVG only
-- Do not make knockout milestones cumulative across rounds
 - Do not commit secrets or `.env` files
 - Do not skip Phase 1 tests when changing scoring
 

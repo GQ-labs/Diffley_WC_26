@@ -5,14 +5,17 @@ import styles from './RulesTab.module.css';
 const { rulesText, match, knockoutMilestone } = scoringConfig;
 
 const milestoneRows = [
-  { round: 'Eliminated in groups', points: knockoutMilestone.groupExit },
-  { round: 'Round of 32', points: knockoutMilestone.roundOf32 },
-  { round: 'Round of 16', points: knockoutMilestone.roundOf16 },
-  { round: 'Quarter-final', points: knockoutMilestone.quarterFinal },
-  { round: 'Semi-final', points: knockoutMilestone.semiFinal },
-  { round: 'Final (runner-up)', points: knockoutMilestone.final },
-  { round: 'Winner', points: knockoutMilestone.winner },
-];
+  { round: 'Round of 32', bonus: knockoutMilestone.roundOf32 },
+  { round: 'Round of 16', bonus: knockoutMilestone.roundOf16 },
+  { round: 'Quarter-final', bonus: knockoutMilestone.quarterFinal },
+  { round: 'Semi-final', bonus: knockoutMilestone.semiFinal },
+].reduce<
+  { round: string; bonus: number; runningTotal: number }[]
+>((rows, row) => {
+  const runningTotal = (rows[rows.length - 1]?.runningTotal ?? 0) + row.bonus;
+  rows.push({ ...row, runningTotal });
+  return rows;
+}, []);
 
 export function RulesTab() {
   return (
@@ -50,19 +53,26 @@ export function RulesTab() {
           <table className={styles.table}>
             <thead>
               <tr>
-                <th scope="col">Furthest round</th>
+                <th scope="col">Advance to</th>
                 <th scope="col">Bonus</th>
+                <th scope="col">Running total</th>
               </tr>
             </thead>
             <tbody>
               {milestoneRows.map((row) => (
                 <tr key={row.round}>
                   <td>{row.round}</td>
-                  <td>+{row.points}</td>
+                  <td>+{row.bonus}</td>
+                  <td>{row.runningTotal}</td>
                 </tr>
               ))}
             </tbody>
           </table>
+          <p className={styles.note}>
+            Final and winner do not add extra knockout bonus beyond the semi-final
+            tier. The table always shows how many bonus points a team has earned
+            at their current stage.
+          </p>
         </article>
 
         <article className={styles.block}>

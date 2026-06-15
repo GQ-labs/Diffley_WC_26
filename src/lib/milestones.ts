@@ -1,4 +1,5 @@
 import teamAliases from '../../data/team-aliases.json';
+import type { ScoringConfig } from '../types/config';
 import { getMatchOutcome } from './matchOutcome';
 import type { KnockoutMilestoneKey, NormalizedMatch } from './types/match';
 
@@ -110,4 +111,42 @@ export function inferTeamMilestone(
   if (hasReachedKnockoutStage(team, 'roundOf16', matches)) return 'roundOf16';
   if (hasQualifiedForRoundOf32(team, matches)) return 'roundOf32';
   return 'groupExit';
+}
+
+/** Knockout rounds that pay a cumulative bonus when reached. */
+export const KNOCKOUT_BONUS_STAGES = [
+  'roundOf32',
+  'roundOf16',
+  'quarterFinal',
+  'semiFinal',
+] as const;
+
+export type KnockoutBonusStage = (typeof KNOCKOUT_BONUS_STAGES)[number];
+
+export function hasReachedBonusStage(
+  team: string,
+  stage: KnockoutBonusStage,
+  matches: NormalizedMatch[],
+): boolean {
+  switch (stage) {
+    case 'roundOf32':
+      return hasQualifiedForRoundOf32(team, matches);
+    case 'roundOf16':
+      return hasReachedKnockoutStage(team, 'roundOf16', matches);
+    case 'quarterFinal':
+      return hasReachedKnockoutStage(team, 'quarterFinal', matches);
+    case 'semiFinal':
+      return hasReachedKnockoutStage(team, 'semiFinal', matches);
+  }
+}
+
+export function getCumulativeMilestonePoints(
+  team: string,
+  matches: NormalizedMatch[],
+  bonuses: ScoringConfig['knockoutMilestone'],
+): number {
+  return KNOCKOUT_BONUS_STAGES.reduce((total, stage) => {
+    if (!hasReachedBonusStage(team, stage, matches)) return total;
+    return total + bonuses[stage];
+  }, 0);
 }

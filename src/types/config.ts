@@ -22,6 +22,7 @@ export interface ScoringConfig {
   };
   knockoutMilestone: {
     description: string;
+    cumulative?: boolean;
     groupExit: number;
     roundOf32: number;
     roundOf16: number;

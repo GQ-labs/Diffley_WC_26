@@ -14,21 +14,21 @@ describe('scoring.json', () => {
     });
   });
 
-  it('defines non-cumulative knockout milestone bonuses', () => {
+  it('defines cumulative knockout milestone bonuses', () => {
     expect(scoring.knockoutMilestone).toEqual({
       description: expect.any(String),
       groupExit: 0,
-      roundOf32: 1,
-      roundOf16: 2,
-      quarterFinal: 3,
-      semiFinal: 5,
-      final: 6,
-      winner: 8,
+      roundOf32: 2,
+      roundOf16: 4,
+      quarterFinal: 6,
+      semiFinal: 8,
+      final: 0,
+      winner: 0,
     });
   });
 
   it('includes rules copy for the Rules tab', () => {
-    expect(scoring.rulesText.summary.length).toBeGreaterThan(20);
+    expect(scoring.rulesText.summary).toMatch(/cumulative/i);
     expect(scoring.rulesText.matchPoints).toMatch(/Win = 3/);
     expect(scoring.rulesText.penalties).toMatch(/penalt/i);
     expect(scoring.rulesText.milestone).toMatch(/openfootball/i);

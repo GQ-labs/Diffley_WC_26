@@ -97,23 +97,23 @@ Match `id` values appear in the Fixtures tab (e.g. `m73` for openfootball match 
 
 ### Knockout milestone
 
+**Cumulative** — bonuses stack each time a team advances:
+
+| Advance to | Bonus | Running total |
+|------------|------:|----------------:|
+| Round of 32 | +2 | 2 |
+| Round of 16 | +4 | 6 |
+| Quarter-final | +6 | 12 |
+| Semi-final | +8 | 20 |
+
 Bonus comes from **openfootball knockout fixtures only** — we do not compute group tables or third-place qualifiers.
 
-- **Round of 32 (+1):** when openfootball slots a real team name into a Round of 32 match (replaces placeholders like `1A` or `3C/E/F/H/I`)
-- **Later stages:** when the team is named in the next-round fixture or wins through (+2 R16, +3 QF, +5 SF, +6 Final, +8 Winner)
+- **Round of 32 (+2):** when openfootball slots a real team name into a Round of 32 match
+- **Later stages:** when the team is named in the next-round fixture or wins through
 - **During groups:** knockout bonus stays 0 until the R32 bracket is filled in
+- **Final / winner:** no extra knockout bonus beyond semi-final tier
 
 The 2026 format uses top two per group plus **8 best third-place teams** (32 in the Round of 32). openfootball handles who qualifies when they update the fixtures.
-
-| Furthest stage reached | Bonus |
-|---------------|------:|
-| Out in groups | 0 |
-| Round of 32 | +1 |
-| Round of 16 | +2 |
-| Quarter-final | +3 |
-| Semi-final | +5 |
-| Final (runner-up) | +6 |
-| Winner | +8 |
 
 **Player total** = sum of all three teams' match points + milestone bonuses.
 

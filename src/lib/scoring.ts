@@ -1,6 +1,6 @@
 import type { ScoringConfig } from '../types/config';
 import { classifyRound } from './rounds';
-import { inferTeamMilestone } from './milestones';
+import { inferTeamMilestone, getCumulativeMilestonePoints } from './milestones';
 import { getMatchOutcome } from './matchOutcome';
 import type {
   MatchOutcome,
@@ -9,7 +9,7 @@ import type {
   TeamStanding,
 } from './types/match';
 
-export { inferTeamMilestone } from './milestones';
+export { inferTeamMilestone, getCumulativeMilestonePoints } from './milestones';
 export { getMatchOutcome } from './matchOutcome';
 
 export function getMatchPoints(
@@ -69,7 +69,11 @@ export function buildTeamStanding(
   }
 
   const milestoneKey = inferTeamMilestone(team, matches);
-  const milestonePoints = getMilestonePoints(milestoneKey, scoring);
+  const milestonePoints = getCumulativeMilestonePoints(
+    team,
+    matches,
+    scoring.knockoutMilestone,
+  );
 
   return {
     team,
