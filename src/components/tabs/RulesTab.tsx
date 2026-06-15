@@ -1,21 +1,21 @@
 import { scoringConfig } from '../../config';
+import {
+  KNOCKOUT_BONUS_STAGE_LABELS,
+  KNOCKOUT_BONUS_STAGES,
+} from '../../lib/milestones';
 import { PageHeader } from '../layout/TabNav';
 import styles from './RulesTab.module.css';
 
 const { rulesText, match, knockoutMilestone } = scoringConfig;
 
-const milestoneRows = [
-  { round: 'Round of 32', bonus: knockoutMilestone.roundOf32 },
-  { round: 'Round of 16', bonus: knockoutMilestone.roundOf16 },
-  { round: 'Quarter-final', bonus: knockoutMilestone.quarterFinal },
-  { round: 'Semi-final', bonus: knockoutMilestone.semiFinal },
-].reduce<
-  { round: string; bonus: number; runningTotal: number }[]
->((rows, row) => {
-  const runningTotal = (rows[rows.length - 1]?.runningTotal ?? 0) + row.bonus;
-  rows.push({ ...row, runningTotal });
-  return rows;
-}, []);
+const milestoneRows = KNOCKOUT_BONUS_STAGES.map((stage, index) => ({
+  round: KNOCKOUT_BONUS_STAGE_LABELS[stage],
+  bonus: knockoutMilestone[stage],
+  runningTotal: KNOCKOUT_BONUS_STAGES.slice(0, index + 1).reduce(
+    (sum, key) => sum + knockoutMilestone[key],
+    0,
+  ),
+}));
 
 export function RulesTab() {
   return (
@@ -48,7 +48,7 @@ export function RulesTab() {
         </article>
 
         <article className={styles.block}>
-          <h3 className={styles.heading}>Knockout milestone bonus</h3>
+          <h3 className={styles.heading}>Knockout progression bonus</h3>
           <p className={styles.text}>{rulesText.milestone}</p>
           <table className={styles.table}>
             <thead>
@@ -68,11 +68,6 @@ export function RulesTab() {
               ))}
             </tbody>
           </table>
-          <p className={styles.note}>
-            Final and winner do not add extra knockout bonus beyond the semi-final
-            tier. The table always shows how many bonus points a team has earned
-            at their current stage.
-          </p>
         </article>
 
         <article className={styles.block}>

@@ -6,20 +6,20 @@
     "penaltyShootoutCountsAsDraw": true
   },
   "knockoutMilestone": {
-    "description": "Cumulative knockout bonus — each value is added when the team advances to that round (2 + 4 + 6 + 8 = 20 max).",
+    "description": "+1 bonus each time a team advances to a new knockout round (max +5 through the final).",
     "groupExit": 0,
-    "roundOf32": 2,
-    "roundOf16": 4,
-    "quarterFinal": 6,
-    "semiFinal": 8,
-    "final": 0,
+    "roundOf32": 1,
+    "roundOf16": 1,
+    "quarterFinal": 1,
+    "semiFinal": 1,
+    "final": 1,
     "winner": 0
   },
   "rulesText": {
-    "summary": "Each lab member owns 3 teams. Points come from match results (3/1/0) plus cumulative knockout bonuses as teams advance.",
+    "summary": "Each lab member owns 3 teams. Points come from match results (3/1/0) plus +1 each time a team advances to a new knockout round.",
     "matchPoints": "Win = 3 pts, Draw = 1 pt, Loss = 0 pts. Applies to all matches including knockouts.",
-    "penalties": "If a knockout match is decided on penalties, it counts as a draw (1 pt each) for match scoring. The team that advances receives the next knockout bonus tier.",
-    "milestone": "Knockout bonuses stack as a team advances: +2 for Round of 32, +4 for Round of 16, +6 for quarter-final, +8 for semi-final (20 total if they reach the last four). Bonuses use openfootball fixture data only — no computed group tables. A team earns each tier when they are slotted into that round or win through to the next.",
+    "penalties": "If a knockout match is decided on penalties, it counts as a draw (1 pt each) for match scoring. The team that advances earns the +1 bonus for reaching the next knockout round.",
+    "milestone": "Each knockout round reached earns +1 bonus (they stack: R32 = 1, R16 = 2, quarter-final = 3, semi-final = 4, final = 5). Bonuses use openfootball fixture data only — no computed group tables. A team earns each +1 when they are slotted into that round or win through to the next. Winning the final does not add a separate bonus beyond reaching the final.",
     "playerTotal": "Your score is the sum of all points from your three teams."
   }
 }

@@ -87,7 +87,7 @@ describe('knockout milestones from openfootball fixtures', () => {
     ];
     expect(hasQualifiedForRoundOf32('Mexico', matches)).toBe(true);
     expect(inferTeamMilestone('Mexico', matches)).toBe('roundOf32');
-    expect(getCumulativeMilestonePoints('Mexico', matches, scoring.knockoutMilestone)).toBe(2);
+    expect(getCumulativeMilestonePoints('Mexico', matches, scoring.knockoutMilestone)).toBe(1);
   });
 
   it('ignores placeholder-only R32 fixtures', () => {
@@ -229,11 +229,11 @@ describe('team standing totals', () => {
     const standing = buildTeamStanding('Mexico', matches, scoring);
     expect(standing.matchPoints).toBe(10);
     expect(standing.milestoneKey).toBe('roundOf16');
-    expect(standing.milestonePoints).toBe(6);
-    expect(standing.totalPoints).toBe(16);
+    expect(standing.milestonePoints).toBe(2);
+    expect(standing.totalPoints).toBe(12);
   });
 
-  it('stacks bonuses through quarter-final and semi-final', () => {
+  it('adds +1 per knockout round reached', () => {
     const matches = [
       match({
         id: 'k1',
@@ -246,7 +246,7 @@ describe('team standing totals', () => {
         roundLabel: 'Quarter-final',
       }),
     ];
-    expect(getCumulativeMilestonePoints('France', matches, scoring.knockoutMilestone)).toBe(14);
-    expect(getCumulativeMilestonePoints('Brazil', matches, scoring.knockoutMilestone)).toBe(6);
+    expect(getCumulativeMilestonePoints('France', matches, scoring.knockoutMilestone)).toBe(2);
+    expect(getCumulativeMilestonePoints('Brazil', matches, scoring.knockoutMilestone)).toBe(1);
   });
 });

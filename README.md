@@ -63,7 +63,7 @@ Edit `data/draft.json` — each player has an `id` (initials) and three `teams`.
 
 ### Updating scoring rules
 
-Edit `data/scoring.json`. Match points and knockout milestone bonuses are config-driven.
+Edit `data/scoring.json`. Match points and knockout progression bonuses are config-driven.
 
 ### Manual result overrides
 
@@ -95,27 +95,25 @@ Match `id` values appear in the Fixtures tab (e.g. `m73` for openfootball match 
 | Loss | 0 |
 | Penalty shootout | Counts as draw (1 pt each); advancing team gets knockout milestone |
 
-### Knockout milestone
+### Knockout progression bonus
 
-**Cumulative** — bonuses stack each time a team advances:
+**+1 each time a team advances to a new knockout round** (bonuses stack):
 
 | Advance to | Bonus | Running total |
 |------------|------:|----------------:|
-| Round of 32 | +2 | 2 |
-| Round of 16 | +4 | 6 |
-| Quarter-final | +6 | 12 |
-| Semi-final | +8 | 20 |
+| Round of 32 | +1 | 1 |
+| Round of 16 | +1 | 2 |
+| Quarter-final | +1 | 3 |
+| Semi-final | +1 | 4 |
+| Final | +1 | 5 |
 
-Bonus comes from **openfootball knockout fixtures only** — we do not compute group tables or third-place qualifiers.
+Bonuses use **openfootball knockout fixtures only** — we do not compute group tables.
 
-- **Round of 32 (+2):** when openfootball slots a real team name into a Round of 32 match
-- **Later stages:** when the team is named in the next-round fixture or wins through
+- A team earns +1 when they are slotted into a round or win through to the next
 - **During groups:** knockout bonus stays 0 until the R32 bracket is filled in
-- **Final / winner:** no extra knockout bonus beyond semi-final tier
+- **Winner:** no extra bonus beyond reaching the final (the final win is rewarded via match points)
 
-The 2026 format uses top two per group plus **8 best third-place teams** (32 in the Round of 32). openfootball handles who qualifies when they update the fixtures.
-
-**Player total** = sum of all three teams' match points + milestone bonuses.
+**Player total** = sum of all three teams' match points + progression bonuses.
 
 ---
 

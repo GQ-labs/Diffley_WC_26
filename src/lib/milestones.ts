@@ -113,13 +113,22 @@ export function inferTeamMilestone(
   return 'groupExit';
 }
 
-/** Knockout rounds that pay a cumulative bonus when reached. */
+/** Knockout rounds that pay +1 each when reached. */
 export const KNOCKOUT_BONUS_STAGES = [
   'roundOf32',
   'roundOf16',
   'quarterFinal',
   'semiFinal',
+  'final',
 ] as const;
+
+export const KNOCKOUT_BONUS_STAGE_LABELS: Record<KnockoutBonusStage, string> = {
+  roundOf32: 'Round of 32',
+  roundOf16: 'Round of 16',
+  quarterFinal: 'Quarter-final',
+  semiFinal: 'Semi-final',
+  final: 'Final',
+};
 
 export type KnockoutBonusStage = (typeof KNOCKOUT_BONUS_STAGES)[number];
 
@@ -137,6 +146,8 @@ export function hasReachedBonusStage(
       return hasReachedKnockoutStage(team, 'quarterFinal', matches);
     case 'semiFinal':
       return hasReachedKnockoutStage(team, 'semiFinal', matches);
+    case 'final':
+      return hasReachedKnockoutStage(team, 'final', matches);
   }
 }
 

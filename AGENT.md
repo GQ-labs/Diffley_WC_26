@@ -9,7 +9,7 @@ This file helps future agents (or humans) work on the Diffley WC 26 points track
 A **static React app** for a lab World Cup pool:
 
 - 16 players (initials only), 3 teams each (48 teams total)
-- Points from match results (3/1/0) + single knockout milestone bonus per team
+- Points from match results (3/1/0) + +1 per knockout round reached (stacking, max +5)
 - Results pulled from openfootball JSON; no backend, no database
 - Deployed to **GitHub Pages** — https://gq-labs.github.io/Diffley_WC_26/
 - Repo: https://github.com/GQ-labs/Diffley_WC_26
@@ -39,7 +39,7 @@ Do not add UI libraries (MUI, Chakra, etc.) unless explicitly requested.
 | File | Purpose |
 |------|---------|
 | `data/draft.json` | Player initials + 3 teams each — **source of truth for assignments** |
-| `data/scoring.json` | Match points, milestone bonuses, rules tab copy |
+| `data/scoring.json` | Match points, knockout progression bonuses, rules tab copy |
 | `data/team-aliases.json` | Maps API team names to canonical names in draft |
 | `data/overrides.json` | Manual score fixes when API is wrong |
 | `src/config.ts` | Imports JSON config + results URL constant |
@@ -59,23 +59,22 @@ Do not add UI libraries (MUI, Chakra, etc.) unless explicitly requested.
 - Knockout matches use same match points
 - Penalty shootout: both teams get draw points (1); winner advances for milestone
 
-### Knockout milestone
+### Knockout progression bonus
 
-**Cumulative** — each tier adds to the running total when a team advances:
+**+1 per knockout round reached** (stacking):
 
 ```
-roundOf32: +2, roundOf16: +4, quarterFinal: +6, semiFinal: +8  (max 20)
+roundOf32: +1, roundOf16: +1, quarterFinal: +1, semiFinal: +1, final: +1  (max +5)
 ```
 
-- R32 (+2): canonical team name appears in a Round of 32 match
-- Later stages: slotted into next-round fixture or won previous knockout tie
-- Final / winner: no extra knockout bonus beyond semi-final tier
+- Each +1 when slotted into that round or when they win through to the next
+- Winner: no separate bonus beyond reaching the final
 
 Never infer qualification from group results.
 
 ### Player total
 
-Sum across all 3 teams: (sum of match points) + (milestone bonus each).
+Sum across all 3 teams: (sum of match points) + (progression bonuses each).
 
 ---
 
