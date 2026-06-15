@@ -2,17 +2,21 @@
 
 A simple, browser-based leaderboard for the Diffley lab World Cup pool. Each person owns three teams; points are calculated automatically from match results.
 
+**Live site:** https://gq-labs.github.io/Diffley_WC_26/
+
 **Design:** Simple and sleek. No emojis. Icons are inline SVG only.
 
 ---
 
 ## For lab members
 
-1. Open the shared GitHub Pages URL (added after Phase 8 deploy).
+1. Open **https://gq-labs.github.io/Diffley_WC_26/**
 2. Bookmark it on your phone or desktop.
-3. Check the **Leaderboard** tab after matches — scores update when the admin refreshes results.
+3. Check the **Leaderboard** tab after matches — scores update when results are refreshed (automatic on page load; admin can use **Refresh**).
 
 No install, login, or technical setup required.
+
+**Filter to your initials:** add `?player=BC` to the URL (replace `BC` with your code).
 
 ---
 
@@ -27,58 +31,35 @@ npm run dev
 
 Open http://localhost:5173
 
-### Build
+### Build and QA
 
 ```bash
 npm run build
-npm run preview
-npm run qa      # validate + test + typecheck + build
+npm run preview          # local preview (dev base path)
+npm run preview:pages    # preview exactly as on GitHub Pages
+npm run qa               # validate + test + typecheck + build
 ```
 
-### Deploy to GitHub Pages
+### Deploy (GitHub Pages)
 
-**One-time setup** (no repo exists yet):
+**Live URL:** https://gq-labs.github.io/Diffley_WC_26/  
+**Repo:** https://github.com/GQ-labs/Diffley_WC_26
 
-1. **Create an empty repo on GitHub**
-   - Go to [github.com/new](https://github.com/new)
-   - Repository name: `Diffley_WC_26` (must match `base` in `vite.config.ts`)
-   - Visibility: **Private** is fine — only you can push; the published Pages URL is still shareable with the lab
-   - Do **not** add a README, `.gitignore`, or licence — you already have those locally
+Deploy is automatic: push to `main` runs `.github/workflows/deploy.yml` and publishes `dist/`.
 
-2. **Link this folder and push** (run in PowerShell from the project folder):
+**One-time setup (already done):**
 
-```powershell
-cd "D:\The Francis Crick Dropbox\Samson Glaser\12. Antigravity\Diffley_WC_26"
+1. Repo `GQ-labs/Diffley_WC_26` on GitHub
+2. Settings → Pages → Source: **GitHub Actions**
+3. Workflow deploys on every push to `main`
 
-git init
-git add .
-git commit -m "Initial commit: Diffley WC 26 points tracker"
+**Manual redeploy:** GitHub → Actions → Deploy to GitHub Pages → Run workflow.
 
-git branch -M main
-git remote add origin https://github.com/YOUR_GITHUB_USERNAME/Diffley_WC_26.git
-git push -u origin main
-```
-
-Replace `YOUR_GITHUB_USERNAME` with your GitHub handle. GitHub may prompt you to sign in (browser or personal access token).
-
-3. **Enable GitHub Pages**
-   - Repo → **Settings** → **Pages**
-   - **Build and deployment** → Source: **GitHub Actions**
-   - (No branch dropdown needed — the workflow deploys automatically)
-
-4. **Wait for the workflow**
-   - Repo → **Actions** → “Deploy to GitHub Pages” should run on push
-   - When it finishes, your site is at:
-
-   `https://YOUR_GITHUB_USERNAME.github.io/Diffley_WC_26/`
-
-**After setup:** any `git push` to `main` rebuilds and redeploys the site.
-
-**If you use a different repo name:** update `repoBase` in `vite.config.ts` to `/<repo-name>/` and push again.
+**If you rename the repo:** update `repoBase` in `vite.config.ts` to `/<repo-name>/` and push.
 
 ### Updating player teams
 
-Edit `data/draft.json` — each player has an `id` (initials) and three `teams`. Push to GitHub; the site redeploys automatically (after Phase 8).
+Edit `data/draft.json` — each player has an `id` (initials) and three `teams`. Push to GitHub; the site redeploys automatically.
 
 ### Updating scoring rules
 
@@ -154,6 +135,8 @@ src/
 docs/
   design.md           # Visual design guidelines
 AGENT.md              # Guide for AI agents / future maintainers
+.github/workflows/
+  deploy.yml          # GitHub Pages CI deploy
 ```
 
 ---
@@ -163,7 +146,7 @@ AGENT.md              # Guide for AI agents / future maintainers
 - Vite + React + TypeScript
 - Static JSON config (no backend)
 - Match data: [openfootball/worldcup.json](https://github.com/openfootball/worldcup.json)
-- Hosting: GitHub Pages
+- Hosting: GitHub Pages (https://gq-labs.github.io/Diffley_WC_26/)
 
 ---
 
@@ -179,7 +162,7 @@ AGENT.md              # Guide for AI agents / future maintainers
 | 5 | Done | Polish — leader card, latest result, refresh spin |
 | 6 | Done | Mobile + accessibility |
 | 7 | Done | QA |
-| 8 | Pending | GitHub Pages deploy — see README “Deploy to GitHub Pages” |
+| 8 | Done | GitHub Pages deploy — live at gq-labs.github.io/Diffley_WC_26 |
 
 ---
 

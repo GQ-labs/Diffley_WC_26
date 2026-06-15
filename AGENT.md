@@ -11,7 +11,8 @@ A **static React app** for a lab World Cup pool:
 - 16 players (initials only), 3 teams each (48 teams total)
 - Points from match results (3/1/0) + single knockout milestone bonus per team
 - Results pulled from openfootball JSON; no backend, no database
-- Deployed to **GitHub Pages**
+- Deployed to **GitHub Pages** — https://gq-labs.github.io/Diffley_WC_26/
+- Repo: https://github.com/GQ-labs/Diffley_WC_26
 
 ---
 
@@ -123,7 +124,7 @@ Before marking a phase complete:
 | 3 | Four tabs render with mock data |
 | 4 | Refresh fetches JSON, handles failure gracefully |
 | 7 | `npm run qa` passes; desktop + 375px browser check; real-device check after Phase 8 |
-| 8 | GitHub Actions deploy workflow + Pages enabled on `main` |
+| 8 | GitHub Actions deploy workflow + Pages live on `main` |
 
 ---
 
@@ -177,9 +178,12 @@ Add mapping in `data/team-aliases.json` under `aliases`.
 npm install          # Install dependencies
 npm run dev          # Dev server
 npm run build        # Production build → dist/
-npm run preview      # Preview production build
-npm run test           # Run scoring unit tests
-npm run test:watch     # Watch mode
+npm run preview      # Preview production build (dev base)
+npm run preview:pages  # Preview with GitHub Pages base path
+npm run qa           # validate + test + typecheck + build
+npm run test         # Run unit tests
+npm run test:watch   # Watch mode
+npm run validate     # Check draft.json
 ```
 
 ---
