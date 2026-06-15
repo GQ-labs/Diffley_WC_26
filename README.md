@@ -42,7 +42,7 @@ npm run qa      # validate + test + typecheck + build
 1. **Create an empty repo on GitHub**
    - Go to [github.com/new](https://github.com/new)
    - Repository name: `Diffley_WC_26` (must match `base` in `vite.config.ts`)
-   - Visibility: Public (required for free GitHub Pages) or Private if your org allows Pages on private repos
+   - Visibility: **Private** is fine — only you can push; the published Pages URL is still shareable with the lab
    - Do **not** add a README, `.gitignore`, or licence — you already have those locally
 
 2. **Link this folder and push** (run in PowerShell from the project folder):
