@@ -35,6 +35,8 @@ const FIFA_NAME_TO_CANONICAL = {
   'DR Congo': 'Congo',
   'Cape Verde Islands': 'Cape Verde',
   'IR Iran': 'Iran',
+  'Türkiye': 'Turkey',
+  Turkiye: 'Turkey',
 };
 
 /** Canonical team -> FIFA URL slug (verified on fifa.com) */
@@ -44,6 +46,7 @@ const TEAM_SLUG_OVERRIDES = {
   Curacao: 'curacao',
   'Ivory Coast': 'cote-divoire',
   Korea: 'korea-republic',
+  Turkey: 'turkiye',
   USA: 'united-states',
 };
 

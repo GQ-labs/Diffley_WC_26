@@ -37,6 +37,21 @@ describe('fifa links', () => {
     );
   });
 
+  it('resolves Turkey matches using FIFA Türkiye name', () => {
+    expect(getFifaMatchUrl('2026-06-19', 'Turkey', 'Paraguay')).toBe(
+      'https://www.fifa.com/en/match-centre/match/17/285023/289273/400021460',
+    );
+    expect(getFifaMatchUrl('2026-06-25', 'Turkey', 'USA')).toBe(
+      'https://www.fifa.com/en/match-centre/match/17/285023/289273/400021459',
+    );
+    expect(getFifaMatchUrl('2026-06-13', 'Australia', 'Turkey')).toBe(
+      'https://www.fifa.com/en/match-centre/match/17/285023/289273/400021463',
+    );
+    expect(getFifaTeamUrl('Turkey')).toBe(
+      'https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/teams/turkiye/team-news',
+    );
+  });
+
   it('normalizes FIFA display names via aliases', () => {
     expect(getFifaTeamUrl("Côte d'Ivoire")).toBe(getFifaTeamUrl('Ivory Coast'));
   });
