@@ -1,45 +1,47 @@
-# Wireframes — Phase 2
+# UI reference — Diffley WC 26
 
-Screen-by-screen specification. The running app uses mock data; approve this layout before Phase 3 wires real scores.
+Screen-by-screen specification for the shipped app. Use this when changing layout or copy.
 
 ---
 
 ## User journeys
 
 ### 1. Who is winning?
-**Goal:** See lab rank at a glance.
 
 | Step | Screen | Element |
 |------|--------|---------|
-| 1 | Leaderboard (default tab) | Sorted table: rank, player, teams, W-D-L, match pts, bonus, total |
-| 2 | — | Leader row highlighted with left accent bar |
-| 3 | Optional | Tap player row to expand team breakdown |
+| 1 | Leaderboard (default) | Sorted table: rank, player, teams, W-D-L, match pts, bonus, total |
+| 2 | — | Leader row highlighted (accent background + left bar) |
+| 3 | Optional | Click player row to expand team breakdown |
 
-### 2. How did BC get those points?
-**Goal:** Understand a specific player's score.
-
-| Step | Screen | Element |
-|------|--------|---------|
-| 1 | Leaderboard | Click player initials |
-| 2 | Expanded row | List of 3 teams with per-team match + milestone breakdown (Phase 3) |
-| 3 | Teams tab | Filter or find team owner (full 48-team list in Phase 3) |
-
-### 3. What happened last night?
-**Goal:** Check recent match results.
+### 2. What is on today?
 
 | Step | Screen | Element |
 |------|--------|---------|
-| 1 | Fixtures tab | Chronological table: date, round, home, score, away, status |
-| 2 | Header | "Last updated" timestamp (Phase 4) |
-| 3 | Fixtures header | Refresh button fetches latest JSON (Phase 4) |
+| 1 | Leaderboard top | Upcoming matches — US matchday, UK kickoff times |
+| 2 | Leaderboard top-right | Current match (if live) — score, minute, FIFA link |
+| 3 | Leaderboard top-right | Latest results — up to 3 finished games |
 
-### 4. How are points calculated?
-**Goal:** Resolve disputes without asking admin.
+### 3. How did my teams do?
 
 | Step | Screen | Element |
 |------|--------|---------|
-| 1 | Rules tab | Plain-English sections from `data/scoring.json` |
-| 2 | — | Milestone bonus table |
+| 1 | Any tab | **Show player** dropdown (shared `?player=` URL) |
+| 2 | Teams | Three teams only; expand for match history |
+| 3 | Fixtures | Matches involving those teams only |
+
+### 4. Full fixture list / FIFA details
+
+| Step | Screen | Element |
+|------|--------|---------|
+| 1 | Fixtures | Chronological table; click row for FIFA match page |
+| 2 | — | Team names link to FIFA team pages throughout app |
+
+### 5. How are points calculated?
+
+| Step | Screen | Element |
+|------|--------|---------|
+| 1 | Rules | Sections from `data/scoring.json` |
 
 ---
 
@@ -47,7 +49,7 @@ Screen-by-screen specification. The running app uses mock data; approve this lay
 
 ```
 +----------------------------------------------------------+
-| [trophy] DIFFLEY LAB          Preview data    [Refresh]  |
+| [trophy] DIFFLEY LAB          N played · Updated  [Ref] |
 |          World Cup 2026                                   |
 +----------------------------------------------------------+
 | Leaderboard | Teams | Fixtures | Rules                    |
@@ -60,7 +62,7 @@ Screen-by-screen specification. The running app uses mock data; approve this lay
 +----------------------------------------------------------+
 ```
 
-- **Header:** Brand left, status + refresh right (stacked on mobile)
+- **Header:** Brand left; status + global Refresh right (stacks on mobile)
 - **Tabs:** Horizontal scroll on narrow screens, 44px min height
 - **Footer:** Single muted line
 
@@ -68,41 +70,49 @@ Screen-by-screen specification. The running app uses mock data; approve this lay
 
 ## Tab: Leaderboard
 
-**Default landing tab.** URL: `/` or `#leaderboard`
+**Default landing tab.** URL: `/` or `?player=<id>`
 
-| Column | Width | Notes |
-|--------|-------|-------|
-| # | narrow | Rank; leader in accent colour |
-| Player | medium | Initials + chevron if expandable |
-| Teams | wide | Comma-separated, muted smaller text |
-| W-D-L | narrow | Centered |
-| Match | narrow | Right-aligned tabular nums |
-| Bonus | narrow | Knockout milestone sum |
-| Total | narrow | Bold |
+### Summary cards (desktop: two columns)
 
-**Interactions:**
-- Click row toggles expand panel
-- Chevron rotates 180deg when open
-- Leader row: `--color-accent-subtle` background + left border
+**Left — Upcoming matches**
+
+- Label + US matchday subtitle
+- List: UK kickoff time | teams | round
+- Each row links to FIFA when mapped
+
+**Right — stacked**
+
+1. **Current match** (hidden when nothing live) — accent card, Live badge, score, minute, updated time
+2. **Latest results** — up to 3 rows with round + date; FIFA links
+
+### Player table
+
+| Column | Notes |
+|--------|-------|
+| # | Rank; leader in accent |
+| Player | Nickname + chevron |
+| Teams | Flag + name list (hidden mobile) |
+| W-D-L | Centered |
+| Match / Bonus / Total | Right-aligned tabular nums |
+
+**Show player** in page header — filters table only; summary cards always show tournament-wide data.
 
 ---
 
 ## Tab: Teams
 
-**All 48 teams** ranked by total points.
+All 48 teams (or 3 when player filtered), ranked by total points.
 
 | Column | Notes |
 |--------|-------|
-| # | Rank |
-| Team | Name |
-| Owner | Player initials |
-| P | Played |
-| Match | Match points |
-| Milestone | Furthest round label |
-| Bonus | Milestone points |
-| Total | Bold |
+| # | Global tournament rank |
+| Team | Flag + name + chevron |
+| Owner | Player nickname |
+| P / Match / Milestone / Bonus / Total | As leaderboard |
 
-Phase 2 preview shows 5 rows. Phase 3 shows full list.
+**Expand row:** match history list — W/D/L badge, score, opponent, round, FIFA link.
+
+**Show player** in page header.
 
 ---
 
@@ -110,38 +120,34 @@ Phase 2 preview shows 5 rows. Phase 3 shows full list.
 
 | Column | Notes |
 |--------|-------|
-| Date | ISO or formatted |
-| Round | Group name or knockout round |
-| Home | Team 1 |
+| Date | openfootball date |
+| Round | Group or knockout label |
+| Home / Away | Flag + name (FIFA team links) |
 | Score | Centered; em dash if scheduled |
-| Away | Team 2 |
-| Status | `final` (muted pill) or `scheduled` (outline) |
+| Status | `final` or `scheduled` pill |
 
-Refresh button in page header (disabled until Phase 4).
+- Click row → FIFA match page (when mapped)
+- **Show player** + **Refresh** in page header
 
 ---
 
 ## Tab: Rules
 
-Card stack layout (not a data table):
-
-1. Overview
-2. Match points (bulleted 3/1/0)
-3. Penalties
-4. Knockout milestone table
-5. Your total
-
-Content loaded from `data/scoring.json` — no hardcoded rules in components.
+Card stack from `data/scoring.json` — overview, match points, penalties, knockout table, player total.
 
 ---
 
-## Components built (Phase 2)
+## Components
 
 | Component | Path |
 |-----------|------|
-| TabNav | `src/components/layout/TabNav.tsx` |
+| TabNav, PageHeader | `src/components/layout/TabNav.tsx` |
 | DataTable | `src/components/ui/DataTable.tsx` |
-| Button | `src/components/ui/Button.tsx` |
+| PlayerFilter | `src/components/ui/PlayerFilter.tsx` |
+| TeamName, TeamFlag, FixtureMatchup | `src/components/ui/TeamName.tsx`, `TeamFlag.tsx` |
+| UpcomingMatchesCard | `src/components/ui/UpcomingMatchesCard.tsx` |
+| CurrentMatchCard | `src/components/ui/CurrentMatchCard.tsx` |
+| RecentResultsCard | `src/components/ui/RecentResultsCard.tsx` |
 | LeaderboardTab | `src/components/tabs/LeaderboardTab.tsx` |
 | TeamsTab | `src/components/tabs/TeamsTab.tsx` |
 | FixturesTab | `src/components/tabs/FixturesTab.tsx` |
@@ -149,13 +155,13 @@ Content loaded from `data/scoring.json` — no hardcoded rules in components.
 
 ---
 
-## Approval checklist
+## URL conventions
 
-- [ ] Tab order and labels correct
-- [ ] Leaderboard columns sufficient
-- [ ] Expandable player row useful
-- [ ] Tables readable on mobile (horizontal scroll OK)
-- [ ] Rules tab clear enough for lab
-- [ ] Visual tone: simple, sleek, not playful
+| Param | Example | Effect |
+|-------|---------|--------|
+| `?player=sam` | `?player=sam#fixtures` | Filter player on Leaderboard, Teams, Fixtures |
+| `#teams` | `/#teams` | Open Teams tab |
+| `#fixtures` | `/#fixtures` | Open Fixtures tab |
+| `#rules` | `/#rules` | Open Rules tab |
 
-After approval, Phase 3 replaces mock data with the scoring engine.
+Player param is preserved when switching tabs. Tab hash is preserved when changing player.

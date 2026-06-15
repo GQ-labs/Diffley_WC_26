@@ -1,10 +1,10 @@
 # Diffley Lab — World Cup 2026 Points Tracker
 
-A simple, browser-based leaderboard for the Diffley lab World Cup pool. Each person owns three teams; points are calculated automatically from match results.
+A browser-based leaderboard for the Diffley lab World Cup pool. Each person owns three teams; points are calculated automatically from match results.
 
 **Live site:** https://gq-labs.github.io/Diffley_WC_26/
 
-**Design:** Simple and sleek. No emojis. Icons are inline SVG only.
+**Design:** Simple and sleek. No emojis. Icons are inline SVG only; country flags via `TeamFlag`.
 
 ---
 
@@ -12,11 +12,31 @@ A simple, browser-based leaderboard for the Diffley lab World Cup pool. Each per
 
 1. Open **https://gq-labs.github.io/Diffley_WC_26/**
 2. Bookmark it on your phone or desktop.
-3. Check the **Leaderboard** tab after matches — scores update when results are refreshed (automatic on page load; admin can use **Refresh**).
+3. Check the **Leaderboard** after matches — scores refresh on page load and via **Refresh** in the header.
 
 No install, login, or technical setup required.
 
-**Filter to one player:** add `?player=florian` to the URL (use the `id` slug from `draft.json`).
+### Tabs
+
+| Tab | What you see |
+|-----|----------------|
+| **Leaderboard** | Player rankings, upcoming matches, live current match, three latest results |
+| **Teams** | All 48 teams ranked; expand a row for match-by-match history |
+| **Fixtures** | Full schedule and results; click a row to open the match on FIFA.com |
+| **Rules** | Scoring explained in plain English |
+
+### Filter by player
+
+Use **Show player** on Leaderboard, Teams, or Fixtures. The choice is shared across tabs and saved in the URL:
+
+`https://gq-labs.github.io/Diffley_WC_26/?player=sam`
+
+Use the `id` slug from `data/draft.json` (e.g. `sam`, `florian`, `john`).
+
+### FIFA links
+
+- Team names link to official FIFA team pages.
+- Fixture rows, recent results, upcoming matches, and the live match card link to FIFA match pages where available.
 
 ---
 
@@ -47,19 +67,15 @@ npm run qa               # validate + test + typecheck + build
 
 Deploy is automatic: push to `main` runs `.github/workflows/deploy.yml` and publishes `dist/`.
 
-**One-time setup (already done):**
-
-1. Repo `GQ-labs/Diffley_WC_26` on GitHub
-2. Settings → Pages → Source: **GitHub Actions**
-3. Workflow deploys on every push to `main`
-
 **Manual redeploy:** GitHub → Actions → Deploy to GitHub Pages → Run workflow.
 
-**If you rename the repo:** update `repoBase` in `vite.config.ts` to `/<repo-name>/` and push.
+**If you rename the repo:** update `base` in `vite.config.ts` and push.
 
 ### Updating player teams
 
-Edit `data/draft.json` — each player has an `id` (URL slug), `name` (nickname shown in the app), and three `teams`. Push to GitHub; the site redeploys automatically.
+Edit `data/draft.json` — each player has an `id` (URL slug), `name` (nickname shown in the app), and three `teams`. Push to `main`; the site redeploys automatically.
+
+Run `npm run validate` to check constraints (16 players, 48 unique teams, canonical names).
 
 ### Updating scoring rules
 
@@ -83,6 +99,16 @@ If openfootball is wrong or slow, edit `data/overrides.json` and redeploy:
 ```
 
 Match `id` values appear in the Fixtures tab (e.g. `m73` for openfootball match num 73). You can also match by `team1` + `team2` or `num`.
+
+### Refreshing FIFA link map
+
+Team and match URLs are stored in `data/fifa.json`, generated from the FIFA API:
+
+```bash
+npm run build:fifa
+```
+
+Commit the updated `data/fifa.json` after running. Required when FIFA slugs change or before the tournament if the API adds knockout match IDs.
 
 ---
 
@@ -121,20 +147,26 @@ Bonuses use **openfootball knockout fixtures only** — we do not compute group 
 
 ```
 data/
-  draft.json          # Players and team assignments
-  scoring.json        # Scoring rules and rules-page copy
-  team-aliases.json   # API name → canonical team name
-  overrides.json      # Manual score corrections (Phase 4)
+  draft.json            # Players (nicknames) and team assignments
+  scoring.json          # Scoring rules and rules-page copy
+  team-aliases.json     # API / FIFA name → canonical team name
+  overrides.json        # Manual score corrections
+  fifa.json             # FIFA.com team + match URLs (generated)
+scripts/
+  validate-draft.mjs    # draft.json checks
+  build-fifa-links.mjs  # Regenerate data/fifa.json from FIFA API
 src/
-  components/         # UI components
-  lib/                # Points engine (Phase 1)
-  styles/             # Design tokens and global CSS
-  types/              # TypeScript types
+  components/           # UI (tabs, tables, cards, flags)
+  context/              # TournamentProvider — fetch, cache, live polling
+  lib/                  # Scoring engine, FIFA links, live match, fixtures
+  styles/               # Design tokens and global CSS
+  types/                # TypeScript types
 docs/
-  design.md           # Visual design guidelines
-AGENT.md              # Guide for AI agents / future maintainers
+  design.md             # Visual design guidelines
+  wireframes.md         # Screen-by-screen UI reference
+AGENT.md                # Guide for AI agents / future maintainers
 .github/workflows/
-  deploy.yml          # GitHub Pages CI deploy
+  deploy.yml            # GitHub Pages CI deploy
 ```
 
 ---
@@ -144,23 +176,14 @@ AGENT.md              # Guide for AI agents / future maintainers
 - Vite + React + TypeScript
 - Static JSON config (no backend)
 - Match data: [openfootball/worldcup.json](https://github.com/openfootball/worldcup.json)
-- Hosting: GitHub Pages (https://gq-labs.github.io/Diffley_WC_26/)
+- Live scores: FIFA public calendar API (polled during live matches)
+- Hosting: GitHub Pages
 
 ---
 
-## Build phases
+## Status
 
-| Phase | Status | Description |
-|-------|--------|-------------|
-| 0 | Done | Foundation, config, design tokens |
-| 1 | Done | Points engine + tests |
-| 2 | Done | UX wireframes + tab shell |
-| 3 | Done | Real data wired to scoring engine |
-| 4 | Done | Cache, fetch hardening, manual overrides |
-| 5 | Done | Polish — leader card, latest result, refresh spin |
-| 6 | Done | Mobile + accessibility |
-| 7 | Done | QA |
-| 8 | Done | GitHub Pages deploy — live at gq-labs.github.io/Diffley_WC_26 |
+Feature-complete for WC 2026. Core build phases (scoring engine, real data, cache, deploy, QA) are done. Ongoing maintenance: `npm run qa` before pushes, `npm run build:fifa` if FIFA URLs need refreshing.
 
 ---
 

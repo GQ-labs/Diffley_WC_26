@@ -20,7 +20,7 @@ The app should feel like a **clean internal tool**, not a consumer game or fan s
 2. **Icons:** custom inline SVG only, stored in `src/components/icons/`.
    - 24×24 viewBox, `stroke="currentColor"`, stroke width 1.5
    - No icon fonts, no emoji, no raster icons for UI chrome
-   - Country flags: inline SVG via `TeamFlag` / `country-flag-icons` (+ custom England & Scotland)
+   - Country flags: `TeamFlag` via `country-flag-icons` (+ custom England & Scotland SVG)
 3. **No decorative clutter** — every element must serve navigation, data, or context.
 
 ---
@@ -28,10 +28,20 @@ The app should feel like a **clean internal tool**, not a consumer game or fan s
 ## Layout
 
 - Max content width: `960px` (`--max-width`)
-- Single-column on mobile; tables may scroll horizontally inside a container if needed
-- Header: app title + last updated + refresh (Phase 4)
+- Single-column on mobile; tables scroll horizontally inside a container when needed
+- Header: app title + matches played / last updated + global Refresh
 - Tab bar: Leaderboard | Teams | Fixtures | Rules
 - Footer: one line of muted metadata
+
+### Leaderboard summary row
+
+Two-column grid on desktop (`InfoCard.module.css`):
+
+| Left | Right |
+|------|-------|
+| Upcoming matches (US matchday, UK kickoffs) | Current match (compact, live) + Latest results (up to 3) |
+
+Cards use `--shadow-sm`, light border. Live current match uses accent border + subtle accent background.
 
 ---
 
@@ -47,10 +57,10 @@ Use CSS tokens from `src/styles/tokens.css`. Do not hardcode hex values in compo
 | `--color-text-primary` | Headings, scores |
 | `--color-text-secondary` | Supporting text |
 | `--color-text-muted` | Labels, footer |
-| `--color-accent` | Links, active tab, primary button |
-| `--color-accent-subtle` | Selected row background |
+| `--color-accent` | Links, active tab, live badge, primary button |
+| `--color-accent-subtle` | Leader row, current match card |
 
-Dark mode via `prefers-color-scheme` only (no manual toggle in v1 unless requested).
+Dark mode via `prefers-color-scheme` only (no manual toggle unless requested).
 
 ---
 
@@ -59,90 +69,101 @@ Dark mode via `prefers-color-scheme` only (no manual toggle in v1 unless request
 - **Font:** Inter (loaded in `index.html`), fallback system-ui
 - **Scale:** xs / sm / base / lg / xl / 2xl tokens
 - **Weights:** 400 body, 500 labels, 600 headings and scores
-- **Letter-spacing:** slight tightening on large headings (`-0.02em`)
-- **Numbers:** tabular figures where available for aligned score columns
+- **Numbers:** tabular figures for score columns
 
 ---
 
-## Components (planned)
+## Components
 
 ### Tab navigation
 
 - Text labels only (no icon-only tabs on mobile)
-- Active state: bottom border or subtle background, accent colour
+- Active state: bottom border, accent colour
 - Min tap target: 44px height
 
-### Tables
+### Tables (`DataTable`)
 
-- Primary data display for leaderboard and fixtures
-- Sticky header on long lists (Phase 3+)
-- Zebra optional — prefer horizontal rules only
+- Primary data display for leaderboard, teams, fixtures
+- Sticky header on long lists
 - Rank column: fixed narrow width
-- Expandable row for player team breakdown (chevron SVG, not emoji)
+- Expandable rows: chevron on player/team name; keyboard support (Enter/Space)
+- Clickable fixture rows open FIFA.com in new tab
+- Non-essential columns hidden below 640px (`hideOnMobile`)
+
+### Player filter (`PlayerFilter`)
+
+- Shared across Leaderboard, Teams, Fixtures
+- Sits in page header actions alongside tab-specific controls (e.g. Refresh)
+
+### Team names (`TeamName`, `FixtureMatchup`)
+
+- Flag + name inline
+- Team names link to FIFA team pages by default
+- Avoid nested links (disable team links inside a match-level link)
+
+### Info cards
+
+| Component | Role |
+|-----------|------|
+| `UpcomingMatchesCard` | Today's US matchday fixtures |
+| `CurrentMatchCard` | Live match strip with pulse badge |
+| `RecentResultsCard` | Up to 3 latest results |
 
 ### Buttons
 
-- Primary: Refresh results (Phase 4)
+- Primary: Refresh (header + Fixtures tab)
 - Ghost/secondary only when needed
-- No gradient buttons
-
-### Cards
-
-- Light border + subtle shadow (`--shadow-sm`)
-- Used sparingly — prefer tables for data
 
 ### Empty / loading states
 
-- Short factual copy ("No results yet")
-- Simple SVG spinner or skeleton lines — no illustrations
+- Short factual copy
+- `LoadingState` spinner — no illustrations
 
 ---
 
 ## Motion
 
 - Transitions: `120ms`–`200ms` ease
-- Allowed: tab underline, row expand, refresh spinner
+- Allowed: tab underline, row expand, refresh spinner, live pulse dot
 - Not allowed: bounce, parallax, celebration animations
+- `prefers-reduced-motion` respected
 
 ---
 
 ## Accessibility
 
-- WCAG 2.1 AA contrast for text (token palette verified)
-- Semantic HTML: `nav`, `main`, `table`, `th`, `caption`, `section`
+- WCAG 2.1 AA contrast (token palette)
+- Semantic HTML: `nav`, `main`, `table`, `section`
 - Skip link to main content
-- Tab pattern: `role="tablist"` / `role="tab"` / `role="tabpanel"` with arrow-key navigation
-- `aria-current` / `aria-selected` on active tab
-- Expandable leaderboard rows: keyboard (Enter/Space), `aria-expanded`, row labels
-- Visible `:focus-visible` ring (global.css)
-- Mobile: 44px tap targets; non-essential table columns hidden below 640px
-- `prefers-reduced-motion` respected for animations
+- Tab pattern with arrow-key navigation
+- Expandable rows: `aria-expanded`, row labels
+- Visible `:focus-visible` ring
+- 44px tap targets on mobile
 
 ---
 
 ## Reference aesthetic
 
-Think: Linear, GitHub dashboard, or a well-typeset spreadsheet — not: fantasy football apps, betting sites, or children's games.
+Think: Linear, GitHub dashboard, or a well-typeset spreadsheet — not fantasy football apps, betting sites, or children's games.
 
 ---
 
 ## File map
 
 ```
-src/styles/tokens.css           Design tokens
-src/styles/global.css           Reset and base
-src/App.module.css              Shell layout
-src/components/icons/           SVG icons
-src/components/layout/          TabNav, page header
-src/components/ui/              DataTable, Button
-src/components/tabs/            Tab wireframes
-docs/wireframes.md              Screen-by-screen spec (Phase 2)
+src/styles/tokens.css
+src/styles/global.css
+src/App.module.css
+src/components/icons/
+src/components/layout/TabNav.tsx
+src/components/ui/DataTable.tsx
+src/components/ui/TeamName.tsx
+src/components/ui/TeamFlag.tsx
+src/components/ui/UpcomingMatchesCard.tsx
+src/components/ui/CurrentMatchCard.tsx
+src/components/ui/RecentResultsCard.tsx
+src/components/tabs/
+docs/wireframes.md
 ```
 
 When adding new icons, follow `IconTrophy.tsx` as the template.
-
----
-
-## Phase 2 status
-
-Wireframe UI is live in the dev server for review. Mock data in `src/data/mockPreview.ts`. Real data wiring is Phase 3.
