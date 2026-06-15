@@ -1,4 +1,5 @@
-import type { ReactNode } from 'react';
+import type { MouseEvent, ReactNode } from 'react';
+import { getFifaMatchUrl, getFifaTeamUrl } from '../../lib/fifa';
 import { TeamFlag } from './TeamFlag';
 import styles from './TeamName.module.css';
 
@@ -6,16 +7,60 @@ interface TeamNameProps {
   team: string;
   className?: string;
   strong?: boolean;
+  /** When false, team name is plain text (e.g. inside a match link). Default true. */
+  link?: boolean;
 }
 
-export function TeamName({ team, className, strong }: TeamNameProps) {
-  const label = strong ? <strong>{team}</strong> : <span>{team}</span>;
-
+function FifaLink({
+  href,
+  label,
+  children,
+  onClick,
+}: {
+  href: string;
+  label: string;
+  children: ReactNode;
+  onClick?: (event: MouseEvent<HTMLAnchorElement>) => void;
+}) {
   return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={styles.link}
+      aria-label={`${label} on FIFA.com`}
+      onClick={onClick}
+    >
+      {children}
+    </a>
+  );
+}
+
+export function TeamName({
+  team,
+  className,
+  strong,
+  link = true,
+}: TeamNameProps) {
+  const label = strong ? <strong>{team}</strong> : <span>{team}</span>;
+  const content = (
     <span className={`${styles.teamName}${className ? ` ${className}` : ''}`}>
       <TeamFlag team={team} />
       {label}
     </span>
+  );
+
+  const href = link ? getFifaTeamUrl(team) : undefined;
+  if (!href) return content;
+
+  return (
+    <FifaLink
+      href={href}
+      label={team}
+      onClick={(event) => event.stopPropagation()}
+    >
+      {content}
+    </FifaLink>
   );
 }
 
@@ -47,6 +92,7 @@ interface FixtureMatchupProps {
   score: string;
   team2: string;
   className?: string;
+  date?: string;
 }
 
 export function FixtureMatchup({
@@ -54,12 +100,26 @@ export function FixtureMatchup({
   score,
   team2,
   className,
+  date,
 }: FixtureMatchupProps) {
-  return (
+  const matchup = (
     <span className={`${styles.matchup}${className ? ` ${className}` : ''}`}>
-      <TeamName team={team1} />
+      <TeamName team={team1} link={!date} />
       <span className={styles.score}>{score}</span>
-      <TeamName team={team2} />
+      <TeamName team={team2} link={!date} />
     </span>
+  );
+
+  if (!date) return matchup;
+
+  const matchHref = getFifaMatchUrl(date, team1, team2);
+  if (!matchHref) return matchup;
+
+  const matchLabel = `${team1} vs ${team2} on FIFA.com`;
+
+  return (
+    <FifaLink href={matchHref} label={matchLabel}>
+      {matchup}
+    </FifaLink>
   );
 }

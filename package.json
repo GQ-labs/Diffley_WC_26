@@ -10,6 +10,7 @@
     "preview:pages": "npm run build && vite preview --base /Diffley_WC_26/",
     "typecheck": "tsc -b --noEmit",
     "validate": "node scripts/validate-draft.mjs",
+    "build:fifa": "node scripts/build-fifa-links.mjs",
     "qa": "npm run validate && npm run test && npm run typecheck && npm run build",
     "test": "vitest run",
     "test:watch": "vitest"

@@ -16,6 +16,7 @@ export function LastResultCard({ result }: { result: LatestResult }) {
           team1={result.team1}
           score={score}
           team2={result.team2}
+          date={result.date}
           className={styles.primary}
         />
       </p>

@@ -1,3 +1,4 @@
+import { getFifaMatchUrl, openFifaUrl } from '../../lib/fifa';
 import { useTournament } from '../../context/TournamentContext';
 import { PageHeader } from '../layout/TabNav';
 import { Button } from '../ui/Button';
@@ -40,6 +41,15 @@ export function FixturesTab() {
           caption="Fixtures and results"
           data={fixtures}
           rowKey={(row) => row.id}
+          onRowClick={(row) => {
+            const url = getFifaMatchUrl(row.date, row.team1, row.team2);
+            if (url) openFifaUrl(url);
+          }}
+          isRowClickable={(row) =>
+            Boolean(getFifaMatchUrl(row.date, row.team1, row.team2))
+          }
+          getRowLabel={(row) => `${row.team1} vs ${row.team2}, ${row.date}`}
+          rowClickHint="Open match on FIFA.com"
           columns={[
           {
             id: 'date',

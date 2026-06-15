@@ -5,6 +5,24 @@
   vertical-align: middle;
 }
 
+.link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.link:hover .teamName strong,
+.link:hover .teamName > span:last-child {
+  text-decoration: underline;
+  text-decoration-color: var(--color-accent);
+  text-underline-offset: 2px;
+}
+
+.link:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
 .listItem {
   display: inline-flex;
   align-items: center;

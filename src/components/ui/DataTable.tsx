@@ -18,8 +18,11 @@ interface DataTableProps<T> {
   expandedRowKey?: string | null;
   renderExpanded?: (row: T) => ReactNode;
   onRowClick?: (row: T) => void;
+  isRowClickable?: (row: T) => boolean;
   leaderKey?: string;
   getRowLabel?: (row: T) => string;
+  rowClickHint?: string;
+  getRowClickHint?: (row: T, isExpanded: boolean) => string;
 }
 
 export function DataTable<T>({
@@ -30,8 +33,11 @@ export function DataTable<T>({
   expandedRowKey,
   renderExpanded,
   onRowClick,
+  isRowClickable,
   leaderKey,
   getRowLabel,
+  rowClickHint,
+  getRowClickHint,
 }: DataTableProps<T>) {
   return (
     <div
@@ -69,8 +75,11 @@ export function DataTable<T>({
                 isExpanded={isExpanded}
                 isLeader={isLeader}
                 onRowClick={onRowClick}
+                isRowClickable={isRowClickable}
                 renderExpanded={renderExpanded}
                 rowLabel={getRowLabel?.(row)}
+                rowClickHint={rowClickHint}
+                getRowClickHint={getRowClickHint}
               />
             );
           })}
@@ -93,18 +102,28 @@ function TableRowGroup<T>({
   isExpanded,
   isLeader,
   onRowClick,
+  isRowClickable,
   renderExpanded,
   rowLabel,
+  rowClickHint,
+  getRowClickHint,
 }: {
   row: T;
   columns: Column<T>[];
   isExpanded: boolean;
   isLeader: boolean;
   onRowClick?: (row: T) => void;
+  isRowClickable?: (row: T) => boolean;
   renderExpanded?: (row: T) => ReactNode;
   rowLabel?: string;
+  rowClickHint?: string;
+  getRowClickHint?: (row: T, isExpanded: boolean) => string;
 }) {
-  const clickable = Boolean(onRowClick);
+  const clickable = Boolean(onRowClick) && (isRowClickable?.(row) ?? true);
+  const clickHint =
+    getRowClickHint?.(row, isExpanded) ??
+    rowClickHint ??
+    (isExpanded ? 'Collapse team breakdown' : 'Expand team breakdown');
 
   const handleKeyDown = (event: KeyboardEvent<HTMLTableRowElement>) => {
     if (!clickable || !onRowClick) return;
@@ -124,9 +143,7 @@ function TableRowGroup<T>({
         tabIndex={clickable ? 0 : undefined}
         aria-expanded={clickable ? isExpanded : undefined}
         aria-label={
-          clickable && rowLabel
-            ? `${rowLabel}. ${isExpanded ? 'Collapse' : 'Expand'} team breakdown`
-            : undefined
+          clickable && rowLabel ? `${rowLabel}. ${clickHint}` : undefined
         }
         onClick={clickable ? () => onRowClick?.(row) : undefined}
         onKeyDown={handleKeyDown}
