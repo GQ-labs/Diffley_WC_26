@@ -59,18 +59,16 @@ export function LeaderboardTab({
         }
       />
 
-      {!playerFilter && (
-        <div className={cardStyles.grid}>
-          <UpcomingMatchesCard upcoming={upcoming} />
-          <div className={cardStyles.resultsColumn}>
-            <CurrentMatchCard
-              match={currentMatch}
-              lastUpdated={liveMatchUpdated}
-            />
-            <RecentResultsCard results={latestResults} />
-          </div>
+      <div className={cardStyles.grid}>
+        <UpcomingMatchesCard upcoming={upcoming} />
+        <div className={cardStyles.resultsColumn}>
+          <CurrentMatchCard
+            match={currentMatch}
+            lastUpdated={liveMatchUpdated}
+          />
+          <RecentResultsCard results={latestResults} />
         </div>
-      )}
+      </div>
 
       {playedCount === 0 ? (
         <EmptyState message="No match results yet. Scores will appear here once games kick off on 11 June 2026." />
