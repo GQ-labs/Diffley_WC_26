@@ -61,6 +61,14 @@
   color: var(--color-text-secondary);
 }
 
+.pageHeaderActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: flex-end;
+  gap: var(--space-3);
+}
+
 @media (max-width: 640px) {
   .pageHeader {
     flex-direction: column;

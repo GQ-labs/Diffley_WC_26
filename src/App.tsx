@@ -274,7 +274,10 @@ function AppShell() {
 
         >
 
-          <TeamsTab />
+          <TeamsTab
+            playerFilter={playerFilter}
+            onPlayerFilterChange={changePlayerFilter}
+          />
 
         </div>
 
@@ -294,7 +297,10 @@ function AppShell() {
 
         >
 
-          <FixturesTab />
+          <FixturesTab
+            playerFilter={playerFilter}
+            onPlayerFilterChange={changePlayerFilter}
+          />
 
         </div>
 
