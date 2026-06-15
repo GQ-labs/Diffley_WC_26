@@ -29,6 +29,9 @@ export interface TeamMatchBreakdown {
   roundLabel: string;
   outcome: MatchOutcome;
   matchPoints: number;
+  date: string;
+  goalsFor: number;
+  goalsAgainst: number;
 }
 
 export interface TeamStanding {

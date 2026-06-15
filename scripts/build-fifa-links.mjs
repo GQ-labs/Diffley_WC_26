@@ -64,8 +64,13 @@ function fifaTeamLabel(team) {
 
 function matchLookupKey(date, team1, team2) {
   const day = date.slice(0, 10);
+  const pair = teamPairKey(team1, team2);
+  return `${day}|${pair}`;
+}
+
+function teamPairKey(team1, team2) {
   const pair = [normalizeTeam(team1), normalizeTeam(team2)].sort();
-  return `${day}|${pair[0]}|${pair[1]}`;
+  return `${pair[0]}|${pair[1]}`;
 }
 
 function defaultSlug(canonical) {
@@ -108,6 +113,7 @@ async function main() {
   const results = data.Results ?? [];
 
   const matches = {};
+  const matchesByTeams = {};
   const fifaDisplayByCanonical = {};
 
   for (const m of results) {
@@ -115,10 +121,13 @@ async function main() {
     const awayLabel = fifaTeamLabel(m.Away);
     const home = normalizeTeam(homeLabel);
     const away = normalizeTeam(awayLabel);
-    const key = matchLookupKey(m.Date, homeLabel, awayLabel);
-    matches[key] = `${FIFA_MATCH_BASE}/${m.IdMatch}`;
-    if (home) fifaDisplayByCanonical[home] = homeLabel;
-    if (away) fifaDisplayByCanonical[away] = awayLabel;
+    if (!home || !away) continue;
+
+    const url = `${FIFA_MATCH_BASE}/${m.IdMatch}`;
+    matches[matchLookupKey(m.Date, homeLabel, awayLabel)] = url;
+    matchesByTeams[teamPairKey(homeLabel, awayLabel)] = url;
+    fifaDisplayByCanonical[home] = homeLabel;
+    fifaDisplayByCanonical[away] = awayLabel;
   }
 
   const teams = {};
@@ -142,12 +151,15 @@ async function main() {
     },
     teams,
     matches,
+    matchesByTeams,
   };
 
   const outPath = join(root, 'data/fifa.json');
   writeFileSync(outPath, `${JSON.stringify(out, null, 2)}\n`);
   console.log(`Wrote ${outPath}`);
-  console.log(`  ${Object.keys(teams).length} teams, ${Object.keys(matches).length} matches`);
+  console.log(
+    `  ${Object.keys(teams).length} teams, ${Object.keys(matches).length} by date, ${Object.keys(matchesByTeams).length} by team pair`,
+  );
 }
 
 main().catch((err) => {

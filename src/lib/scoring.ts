@@ -59,12 +59,19 @@ export function buildTeamStanding(
     else if (outcome === 'draw') draws += 1;
     else losses += 1;
 
+    const isHome = match.team1 === team;
+    const goalsFor = isHome ? match.homeScore! : match.awayScore!;
+    const goalsAgainst = isHome ? match.awayScore! : match.homeScore!;
+
     breakdown.push({
       matchId: match.id,
-      opponent: match.team1 === team ? match.team2 : match.team1,
+      opponent: isHome ? match.team2 : match.team1,
       roundLabel: match.roundLabel,
       outcome,
       matchPoints: points,
+      date: match.date,
+      goalsFor,
+      goalsAgainst,
     });
   }
 
