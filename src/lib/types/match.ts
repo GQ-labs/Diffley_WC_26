@@ -46,6 +46,7 @@ export interface TeamStanding {
 
 export interface PlayerStanding {
   id: string;
+  name: string;
   teams: string[];
   matchPoints: number;
   milestonePoints: number;

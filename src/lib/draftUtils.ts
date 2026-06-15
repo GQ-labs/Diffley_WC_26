@@ -4,7 +4,7 @@ export function buildOwnerMap(draft: DraftConfig): Map<string, string> {
   const map = new Map<string, string>();
   for (const player of draft.players) {
     for (const team of player.teams) {
-      map.set(team, player.id);
+      map.set(team, player.name);
     }
   }
   return map;

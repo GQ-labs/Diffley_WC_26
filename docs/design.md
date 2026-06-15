@@ -20,7 +20,7 @@ The app should feel like a **clean internal tool**, not a consumer game or fan s
 2. **Icons:** custom inline SVG only, stored in `src/components/icons/`.
    - 24×24 viewBox, `stroke="currentColor"`, stroke width 1.5
    - No icon fonts, no emoji, no raster icons for UI chrome
-   - Country flags (if added later): small SVG or ISO code text — never emoji flags
+   - Country flags: inline SVG via `TeamFlag` / `country-flag-icons` (+ custom England & Scotland)
 3. **No decorative clutter** — every element must serve navigation, data, or context.
 
 ---

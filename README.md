@@ -16,7 +16,7 @@ A simple, browser-based leaderboard for the Diffley lab World Cup pool. Each per
 
 No install, login, or technical setup required.
 
-**Filter to your initials:** add `?player=BC` to the URL (replace `BC` with your code).
+**Filter to one player:** add `?player=florian` to the URL (use the `id` slug from `draft.json`).
 
 ---
 
@@ -59,7 +59,7 @@ Deploy is automatic: push to `main` runs `.github/workflows/deploy.yml` and publ
 
 ### Updating player teams
 
-Edit `data/draft.json` — each player has an `id` (initials) and three `teams`. Push to GitHub; the site redeploys automatically.
+Edit `data/draft.json` — each player has an `id` (URL slug), `name` (nickname shown in the app), and three `teams`. Push to GitHub; the site redeploys automatically.
 
 ### Updating scoring rules
 

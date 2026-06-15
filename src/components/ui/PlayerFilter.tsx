@@ -18,7 +18,7 @@ export function PlayerFilter({ value, onChange }: PlayerFilterProps) {
         <option value="">All players</option>
         {draftConfig.players.map((p) => (
           <option key={p.id} value={p.id}>
-            {p.id}
+            {p.name}
           </option>
         ))}
       </select>

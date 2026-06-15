@@ -13,6 +13,7 @@ import { LastResultCard } from '../ui/LastResultCard';
 import cardStyles from '../ui/InfoCard.module.css';
 import tableStyles from '../ui/DataTable.module.css';
 import { DataTable } from '../ui/DataTable';
+import { TeamName, TeamNameList } from '../ui/TeamName';
 import styles from './LeaderboardTab.module.css';
 
 interface LeaderboardTabProps {
@@ -71,7 +72,7 @@ export function LeaderboardTab({
           rowKey={(row) => row.id}
           leaderKey={!playerFilter ? leaderId : undefined}
           expandedRowKey={expandedId}
-          getRowLabel={(row) => row.id}
+          getRowLabel={(row) => row.name}
           onRowClick={(row) =>
             setExpandedId((current) => (current === row.id ? null : row.id))
           }
@@ -95,7 +96,7 @@ export function LeaderboardTab({
               header: 'Player',
               render: (row) => (
                 <span className={styles.playerCell}>
-                  <span className={styles.playerId}>{row.id}</span>
+                  <span className={styles.playerName}>{row.name}</span>
                   <IconChevronDown
                     className={`${tableStyles.chevron} ${
                       expandedId === row.id ? tableStyles.chevronOpen : ''
@@ -109,9 +110,10 @@ export function LeaderboardTab({
               header: 'Teams',
               hideOnMobile: true,
               render: (row) => (
-                <span className={tableStyles.teamList}>
-                  {row.teams.join(', ')}
-                </span>
+                <TeamNameList
+                  teams={row.teams}
+                  className={tableStyles.teamList}
+                />
               ),
             },
             {
@@ -151,11 +153,11 @@ export function LeaderboardTab({
 function PlayerBreakdown({ row }: { row: RankedPlayerStanding }) {
   return (
     <div className={tableStyles.expandPanel}>
-      <p className={tableStyles.expandTitle}>Team breakdown — {row.id}</p>
+      <p className={tableStyles.expandTitle}>Team breakdown — {row.name}</p>
       <div className={tableStyles.expandGrid}>
         {row.teamStandings.map((team) => (
           <div key={team.team} className={tableStyles.expandItem}>
-            <span>{team.team}</span>
+            <TeamName team={team.team} />
             <span>
               {team.matchPoints} + {team.milestonePoints} (
               {milestoneLabels[team.milestoneKey]}) = {team.totalPoints}

@@ -46,6 +46,7 @@ export function buildPlayerStandings(
 
       return {
         id: player.id,
+        name: player.name,
         teams: player.teams,
         matchPoints,
         milestonePoints,
@@ -59,7 +60,7 @@ export function buildPlayerStandings(
     .sort((a, b) => {
       if (b.totalPoints !== a.totalPoints) return b.totalPoints - a.totalPoints;
       if (b.matchPoints !== a.matchPoints) return b.matchPoints - a.matchPoints;
-      return a.id.localeCompare(b.id);
+      return a.name.localeCompare(b.name);
     })
     .map((standing, index) => ({ ...standing, rank: index + 1 }));
 }

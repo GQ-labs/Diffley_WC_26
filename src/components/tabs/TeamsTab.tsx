@@ -5,6 +5,7 @@ import { LoadingState } from '../ui/LoadingState';
 import { ErrorState } from '../ui/StatusMessage';
 import tableStyles from '../ui/DataTable.module.css';
 import { DataTable } from '../ui/DataTable';
+import { TeamName } from '../ui/TeamName';
 
 export function TeamsTab() {
   const { loading, error, teams, refresh } = useTournament();
@@ -37,7 +38,7 @@ export function TeamsTab() {
           {
             id: 'team',
             header: 'Team',
-            render: (row) => <strong>{row.team}</strong>,
+            render: (row) => <TeamName team={row.team} strong />,
           },
           {
             id: 'owner',

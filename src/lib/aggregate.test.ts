@@ -34,12 +34,12 @@ describe('player standings', () => {
     ];
 
     const standings = buildPlayerStandings(draft, matches, scoring);
-    const bc = standings.find((p) => p.id === 'BC');
+    const berta = standings.find((p) => p.id === 'berta');
 
-    expect(bc).toBeDefined();
-    expect(bc!.teams).toEqual(['Brazil', 'Iraq', 'Argentina']);
-    expect(bc!.matchPoints).toBe(7); // Brazil 4, Iraq 0, Argentina 3
-    expect(bc!.totalPoints).toBe(bc!.matchPoints + bc!.milestonePoints);
+    expect(berta).toBeDefined();
+    expect(berta!.teams).toEqual(['Brazil', 'Iraq', 'Argentina']);
+    expect(berta!.matchPoints).toBe(7); // Brazil 4, Iraq 0, Argentina 3
+    expect(berta!.totalPoints).toBe(berta!.matchPoints + berta!.milestonePoints);
   });
 
   it('returns 16 ranked players', () => {

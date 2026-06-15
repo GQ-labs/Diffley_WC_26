@@ -5,6 +5,7 @@ import { LoadingState } from '../ui/LoadingState';
 import { ErrorState, EmptyState } from '../ui/StatusMessage';
 import tableStyles from '../ui/DataTable.module.css';
 import { DataTable } from '../ui/DataTable';
+import { TeamName } from '../ui/TeamName';
 
 export function FixturesTab() {
   const { loading, error, fixtures, refreshing, refresh } = useTournament();
@@ -54,7 +55,7 @@ export function FixturesTab() {
           {
             id: 'team1',
             header: 'Home',
-            render: (row) => row.team1,
+            render: (row) => <TeamName team={row.team1} />,
           },
           {
             id: 'score',
@@ -67,7 +68,7 @@ export function FixturesTab() {
           {
             id: 'team2',
             header: 'Away',
-            render: (row) => row.team2,
+            render: (row) => <TeamName team={row.team2} />,
           },
           {
             id: 'status',

@@ -24,6 +24,9 @@ for (const p of players) {
   if (!p.id || typeof p.id !== 'string') {
     errors.push(`Player missing id: ${JSON.stringify(p)}`);
   }
+  if (!p.name || typeof p.name !== 'string') {
+    errors.push(`Player ${p.id ?? '?'} missing name`);
+  }
   if (!Array.isArray(p.teams) || p.teams.length !== 3) {
     errors.push(`Player ${p.id} must have exactly 3 teams`);
   } else {

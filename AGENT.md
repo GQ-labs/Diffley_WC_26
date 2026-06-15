@@ -8,7 +8,7 @@ This file helps future agents (or humans) work on the Diffley WC 26 points track
 
 A **static React app** for a lab World Cup pool:
 
-- 16 players (initials only), 3 teams each (48 teams total)
+- 16 players (nicknames), 3 teams each (48 teams total)
 - Points from match results (3/1/0) + +1 per knockout round reached (stacking, max +5)
 - Results pulled from openfootball JSON; no backend, no database
 - Deployed to **GitHub Pages** — https://gq-labs.github.io/Diffley_WC_26/
@@ -132,9 +132,9 @@ Before marking a phase complete:
 2. Ensure team count constraints still hold (pool is fixed at 48 teams)
 3. Rebuild and deploy
 
-### Rename initials to full names
+### Rename a player
 
-Add optional `name` field to player objects in `draft.json`; display `name ?? id` in UI. Keep initials as `id` for URLs.
+Edit `name` and `id` in `data/draft.json`. The `id` slug is used in URLs (`?player=florian`).
 
 ### Fix wrong API team name
 

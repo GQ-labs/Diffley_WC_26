@@ -6,21 +6,21 @@
     "updated": "2026-06-15"
   },
   "players": [
-  { "id": "AB", "teams": ["Iran", "Switzerland", "Croatia"] },
-  { "id": "AE", "teams": ["Belgium", "Spain", "South Africa"] },
-  { "id": "BC", "teams": ["Brazil", "Iraq", "Argentina"] },
-  { "id": "CT", "teams": ["USA", "Saudi Arabia", "Senegal"] },
-  { "id": "EE", "teams": ["Turkey", "Germany", "Uzbekistan"] },
-  { "id": "FB", "teams": ["England", "France", "Curacao"] },
-  { "id": "FW", "teams": ["Sweden", "Scotland", "Portugal"] },
-  { "id": "GL", "teams": ["Czechia", "Algeria", "Ghana"] },
-  { "id": "JD", "teams": ["Australia", "Morocco", "Qatar"] },
-  { "id": "KW", "teams": ["Japan", "Egypt", "New Zealand"] },
-  { "id": "LD", "teams": ["Colombia", "Uruguay", "Bosnia"] },
-  { "id": "NH", "teams": ["Panama", "Paraguay", "Tunisia"] },
-  { "id": "SG", "teams": ["Ecuador", "Jordan", "Austria"] },
-  { "id": "SW", "teams": ["Congo", "Canada", "Cape Verde"] },
-  { "id": "TM", "teams": ["Haiti", "Netherlands", "Ivory Coast"] },
-  { "id": "YH", "teams": ["Korea", "Norway", "Mexico"] }
+    { "id": "anne", "name": "Anne", "teams": ["Iran", "Switzerland", "Croatia"] },
+    { "id": "agos", "name": "Agos", "teams": ["Belgium", "Spain", "South Africa"] },
+    { "id": "berta", "name": "Berta", "teams": ["Brazil", "Iraq", "Argentina"] },
+    { "id": "chew-theng", "name": "Chew Theng", "teams": ["USA", "Saudi Arabia", "Senegal"] },
+    { "id": "evelyn", "name": "Evelyn", "teams": ["Turkey", "Germany", "Uzbekistan"] },
+    { "id": "fernando", "name": "Fernando", "teams": ["England", "France", "Curacao"] },
+    { "id": "florian", "name": "Florian", "teams": ["Sweden", "Scotland", "Portugal"] },
+    { "id": "giselle", "name": "Giselle", "teams": ["Czechia", "Algeria", "Ghana"] },
+    { "id": "jon", "name": "Jon", "teams": ["Australia", "Morocco", "Qatar"] },
+    { "id": "kang-wei", "name": "Kang Wei", "teams": ["Japan", "Egypt", "New Zealand"] },
+    { "id": "lucy", "name": "Lucy", "teams": ["Colombia", "Uruguay", "Bosnia"] },
+    { "id": "nathan", "name": "Nathan", "teams": ["Panama", "Paraguay", "Tunisia"] },
+    { "id": "sophie", "name": "Sophie", "teams": ["Ecuador", "Jordan", "Austria"] },
+    { "id": "sam", "name": "Sam", "teams": ["Congo", "Canada", "Cape Verde"] },
+    { "id": "tom", "name": "Tom", "teams": ["Haiti", "Netherlands", "Ivory Coast"] },
+    { "id": "yuki", "name": "Yuki", "teams": ["Korea", "Norway", "Mexico"] }
   ]
 }
