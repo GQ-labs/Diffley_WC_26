@@ -188,6 +188,17 @@
   margin: 0;
 }
 
+.matchHistoryRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+}
+
 .matchHistoryLinkRow {
   display: flex;
   justify-content: space-between;
@@ -216,12 +227,15 @@
   align-items: center;
   gap: var(--space-2);
   flex-wrap: wrap;
+  min-width: 0;
+  flex: 1;
 }
 
 .matchHistoryMeta {
   color: var(--color-text-muted);
   font-size: var(--text-xs);
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .matchHistoryLink {

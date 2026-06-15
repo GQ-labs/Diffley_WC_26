@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useTournament } from '../../context/TournamentContext';
 import { milestoneLabels } from '../../lib/labels';
+import { getUpcomingMatchday } from '../../lib/upcomingMatches';
 import { getLatestResult } from '../../lib/recentMatch';
 import type { RankedPlayerStanding } from '../../lib/aggregate';
 import { IconChevronDown } from '../icons/IconChevronDown';
@@ -8,7 +9,7 @@ import { PageHeader } from '../layout/TabNav';
 import { PlayerFilter } from '../ui/PlayerFilter';
 import { LoadingState } from '../ui/LoadingState';
 import { ErrorState, EmptyState } from '../ui/StatusMessage';
-import { LeaderCard } from '../ui/LeaderCard';
+import { UpcomingMatchesCard } from '../ui/UpcomingMatchesCard';
 import { LastResultCard } from '../ui/LastResultCard';
 import cardStyles from '../ui/InfoCard.module.css';
 import tableStyles from '../ui/DataTable.module.css';
@@ -37,6 +38,7 @@ export function LeaderboardTab({
   const leader = players[0];
   const leaderId = leader?.id;
   const latestResult = useMemo(() => getLatestResult(matches), [matches]);
+  const upcoming = useMemo(() => getUpcomingMatchday(matches), [matches]);
 
   if (loading && players.length === 0) {
     return <LoadingState message="Fetching tournament results…" />;
@@ -56,9 +58,9 @@ export function LeaderboardTab({
         }
       />
 
-      {!playerFilter && leader && playedCount > 0 && (
+      {!playerFilter && (
         <div className={cardStyles.grid}>
-          <LeaderCard leader={leader} />
+          <UpcomingMatchesCard upcoming={upcoming} />
           {latestResult && <LastResultCard result={latestResult} />}
         </div>
       )}

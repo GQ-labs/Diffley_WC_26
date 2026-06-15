@@ -7,6 +7,7 @@ import type { MatchOverride } from './overrides';
 interface RawOpenFootballMatch {
   round?: string;
   date?: string;
+  time?: string;
   team1?: string;
   team2?: string;
   group?: string;

@@ -100,6 +100,7 @@ export function normalizeOpenFootballMatch(
   raw: {
     round?: string;
     date?: string;
+    time?: string;
     team1?: string;
     team2?: string;
     group?: string;
@@ -132,6 +133,7 @@ export function normalizeOpenFootballMatch(
     stage,
     knockoutRound,
     date: raw.date ?? '',
+    kickoffTime: raw.time,
     decidedByPenalties,
     group: raw.group,
   };

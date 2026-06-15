@@ -147,7 +147,7 @@ function TeamMatchHistoryRow({
   const url = getFifaMatchUrl(match.date, team, match.opponent);
   const label = `${outcomeLabel} ${score} vs ${match.opponent}, ${match.roundLabel}`;
 
-const outcomeClass =
+  const outcomeClass =
     match.outcome === 'win'
       ? tableStyles.matchOutcomeWin
       : match.outcome === 'draw'
@@ -165,13 +165,16 @@ const outcomeClass =
       </span>
       <span className={tableStyles.matchHistoryMeta}>
         {match.roundLabel} · +{match.matchPoints}
-        {url && <span className={tableStyles.matchHistoryLink}>FIFA</span>}
       </span>
     </>
   );
 
   if (!url) {
-    return <li className={tableStyles.matchHistoryItem}>{content}</li>;
+    return (
+      <li className={tableStyles.matchHistoryItem}>
+        <div className={tableStyles.matchHistoryRow}>{content}</div>
+      </li>
+    );
   }
 
   return (
@@ -185,6 +188,7 @@ const outcomeClass =
         onClick={(event) => event.stopPropagation()}
       >
         {content}
+        <span className={tableStyles.matchHistoryLink}>FIFA</span>
       </a>
     </li>
   );

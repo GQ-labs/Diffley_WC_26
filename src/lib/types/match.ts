@@ -19,6 +19,7 @@ export interface NormalizedMatch {
   stage: 'group' | 'knockout' | 'thirdPlace';
   knockoutRound: KnockoutMilestoneKey | null;
   date: string;
+  kickoffTime?: string;
   decidedByPenalties: boolean;
   group?: string;
 }
