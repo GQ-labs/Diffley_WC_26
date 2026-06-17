@@ -1,14 +1,24 @@
 import type { CurrentMatch } from '../../lib/liveMatch';
 import { getFifaMatchUrl } from '../../lib/fifa';
-import { FixtureMatchup } from './TeamName';
+import { useTeamOwners } from '../../hooks/useTeamOwners';
+import { usePlayerTeamSet } from '../../hooks/usePlayerTeamSet';
+import { FixtureMatchupWithOwners } from './TeamName';
 import styles from './InfoCard.module.css';
 
 interface CurrentMatchCardProps {
   match: CurrentMatch | null;
   lastUpdated: Date | null;
+  playerFilter?: string;
 }
 
-export function CurrentMatchCard({ match, lastUpdated }: CurrentMatchCardProps) {
+export function CurrentMatchCard({
+  match,
+  lastUpdated,
+  playerFilter = '',
+}: CurrentMatchCardProps) {
+  const owners = useTeamOwners();
+  const highlightPlayerTeams = usePlayerTeamSet(playerFilter);
+
   if (!match) return null;
 
   const score = `${match.homeScore}–${match.awayScore}`;
@@ -27,10 +37,12 @@ export function CurrentMatchCard({ match, lastUpdated }: CurrentMatchCardProps) 
         )}
       </div>
       <p className={styles.currentScore}>
-        <FixtureMatchup
+        <FixtureMatchupWithOwners
           team1={match.team1}
           score={score}
           team2={match.team2}
+          owners={owners}
+          highlightPlayerTeams={highlightPlayerTeams}
           className={styles.primary}
         />
       </p>

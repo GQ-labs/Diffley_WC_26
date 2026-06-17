@@ -60,13 +60,17 @@ export function LeaderboardTab({
       />
 
       <div className={cardStyles.grid}>
-        <UpcomingMatchesCard upcoming={upcoming} />
+        <UpcomingMatchesCard upcoming={upcoming} playerFilter={playerFilter} />
         <div className={cardStyles.resultsColumn}>
           <CurrentMatchCard
             match={currentMatch}
             lastUpdated={liveMatchUpdated}
+            playerFilter={playerFilter}
           />
-          <RecentResultsCard results={latestResults} />
+          <RecentResultsCard
+            results={latestResults}
+            playerFilter={playerFilter}
+          />
         </div>
       </div>
 

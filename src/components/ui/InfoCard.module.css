@@ -283,20 +283,42 @@
 }
 
 @media (max-width: 480px) {
+  .card {
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .currentCard {
+    padding: var(--space-3);
+  }
+
+  .currentCard .primary {
+    font-size: var(--text-sm);
+  }
+
   .upcomingLink,
   .upcomingListItem:not(:has(.upcomingLink)) {
     grid-template-columns: 1fr;
     gap: var(--space-2);
+    align-items: start;
   }
 
   .upcomingRound {
     white-space: normal;
   }
 
+  .upcomingMatchup {
+    width: 100%;
+  }
+
   .resultsLink,
   .resultsListItem:not(:has(.resultsLink)) {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
+  }
+
+  .resultMatchup {
+    width: 100%;
+    flex: none;
   }
 
   .resultMeta {
