@@ -77,16 +77,17 @@ Do not add UI libraries (MUI, Chakra, etc.) unless explicitly requested.
 
 ### Groups tab
 
-- Twelve group tables (A–L) with live standings, qualification badges, pool points
+- Twelve group tables (A–L) with live standings and pool points
 - Expand row for W/D/L match history with FIFA links
 - **Show player** filter — shows only that player's teams across groups
 
 ### Knockout stage tab
 
-- **Mobile (<768px):** round-by-round match list, full team names + owner labels
-- **Desktop:** horizontal bracket tree; compact cards (flag + 3-letter code + owner); swipe to scroll
-- Live projected bracket from group standings until R32 is confirmed on openfootball
-- No player filter — all teams shown with owner sublabels
+- **Narrow screens (<1024px):** round-by-round match list (R32 through final)
+- **Desktop (1024px+):** horizontal column bracket (R32 | R16 | QF | centre | QF | R16 | R32); swipe to scroll on medium widths
+- **Round of 32:** projected teams from group standings; full names + owner labels (list) or flag + code + owner (columns)
+- **Round of 16 onward:** feeder paths only (e.g. M73 vs M75, Loser M101) until openfootball reports a final score with real team names
+- No player filter — all teams shown with owner sublabels on R32
 
 ### Fixtures tab
 
@@ -126,7 +127,7 @@ Milestones use the **bracket tree** (`src/lib/bracket.ts` + `src/lib/milestones.
 
 - **R32 bonus:** only after all 72 group matches are complete **and** every R32 fixture on openfootball lists real team names (no `1A` / `2B` / `3A/B/C` placeholders)
 - **R16 onward:** team advanced by winning the previous knockout round (or reaching the next round in the tree from results)
-- The Knockout stage tab shows a **projected** bracket from computed group tables for display; milestone bonuses do not use projections for R32
+- The Knockout stage tab projects **round of 32** slots from group tables; later rounds show **feeder match paths** (not projected countries). Milestone bonuses never use display projections
 
 ### Player total
 

@@ -21,8 +21,8 @@ No install, login, or technical setup required.
 | Tab | What you see |
 |-----|----------------|
 | **Leaderboard** | Player rankings, upcoming matches, live current match, three latest results |
-| **Groups** | Standings for Groups A–L; qualification badges; expand a row for match history |
-| **Knockout stage** | Live projected bracket (phone: round-by-round list; desktop: compact tree with flag + code + owner) |
+| **Groups** | Standings for Groups A–L; expand a row for match history |
+| **Knockout stage** | Round of 32 projected from group standings; later rounds show feeder paths (e.g. M73 vs M75). Phone: round-by-round list; desktop (1024px+): column bracket |
 | **Fixtures** | Full schedule and results; click a row to open the match on FIFA.com |
 | **Rules** | Scoring explained in plain English |
 
@@ -34,7 +34,7 @@ Use **Show player** on Leaderboard, Groups, or Fixtures. The choice is shared ac
 
 Use the `id` slug from `data/draft.json` (e.g. `sam`, `florian`, `john`).
 
-The **Knockout stage** tab always shows the full tournament bracket with lab member names on every team.
+The **Knockout stage** tab always shows the full bracket. Round of 32 matches show teams with owner names; round of 16 and beyond show which earlier match winners meet (e.g. M73 vs M75) until a result is in.
 
 ### FIFA links
 

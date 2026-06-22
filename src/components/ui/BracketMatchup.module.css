@@ -1,36 +1,27 @@
 .matchup {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-  align-items: center;
+  display: flex;
+  flex-direction: column;
   gap: var(--space-2);
   width: 100%;
 }
 
-.score {
-  font-weight: var(--weight-semibold);
-  font-size: var(--text-sm);
-  white-space: nowrap;
-  color: var(--color-text-secondary);
-  justify-self: center;
+.teamsRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-2);
 }
 
-.compactTeam {
-  display: flex;
-  align-items: flex-start;
+.teamCode {
+  display: inline-flex;
+  align-items: center;
   gap: var(--space-2);
   min-width: 0;
 }
 
-.compactTeamEnd {
+.teamCodeEnd {
   flex-direction: row-reverse;
-  text-align: right;
-}
-
-.compactBody {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  min-width: 0;
+  justify-self: end;
 }
 
 .code {
@@ -41,18 +32,33 @@
   line-height: 1.2;
 }
 
+.score {
+  font-weight: var(--weight-semibold);
+  font-size: var(--text-sm);
+  white-space: nowrap;
+  color: var(--color-text-secondary);
+  justify-self: center;
+}
+
+.ownersRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-2);
+  padding-top: 1px;
+  border-top: 1px solid var(--color-border);
+}
+
 .owner {
   font-size: var(--text-xs);
   color: var(--color-text-muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 4.5rem;
   line-height: 1.25;
 }
 
-.compactTeamEnd .owner {
-  align-self: flex-end;
+.owner:last-child {
+  text-align: right;
 }
 
 .tbd {

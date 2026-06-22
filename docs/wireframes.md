@@ -114,12 +114,10 @@ Twelve sections (Group A through L). URL: `/#groups` (legacy `/#teams` redirects
 | Column | Notes |
 |--------|-------|
 | # | Position in group |
-| Team | Flag + name + qualification badge + chevron |
+| Team | Flag + name + chevron |
 | Owner | Player nickname |
 | P / W-D-L / GD / Grp | Group-stage stats |
 | Pool | Total pool points for that team |
-
-**Qualification badges:** Qualified, Best 3rd, In contention, Out (with `?` when projected).
 
 **Expand row:** match history — W/D/L badge, score, opponent, round, FIFA link, milestone note.
 
@@ -131,7 +129,7 @@ Twelve sections (Group A through L). URL: `/#groups` (legacy `/#teams` redirects
 
 URL: `/#knockout`. No player filter.
 
-### Mobile (<768px)
+### Narrow screens (<1024px)
 
 Round-by-round sections:
 
@@ -142,14 +140,25 @@ Round-by-round sections:
 5. Match for third place
 6. Final
 
-Each match card: M-number, `proj.` if projected, full team names + owner sublabels, score or `vs`.
+Each match card: M-number, `proj.` on projected R32 slots, full team names + owner sublabels on R32, feeder paths (M73 vs M75) on later rounds, score or `vs`.
 
-### Desktop (768px+)
+### Desktop (1024px+)
 
-Horizontal bracket tree, seven columns, swipe to scroll on medium widths.
+Horizontal bracket, seven simple columns (no vertical tree alignment), swipe to scroll on medium widths.
 
-- Compact matchup: flag + 3-letter code + owner (e.g. `KOR` / Yuki)
-- `proj.` on projected slots; dashed border
+| Column (L→R) | Matches |
+|----------------|---------|
+| Round of 32 | M73–M80 (left bracket half) |
+| Round of 16 | M89–M92 |
+| Quarter-final | M97, M99 |
+| Centre | M101, M104 final, M103 third, M102 |
+| Quarter-final | M98, M100 |
+| Round of 16 | M93–M96 |
+| Round of 32 | M81–M88 (right bracket half) |
+
+- R32: compact cards — flag + 3-letter code + owner
+- R16+: feeder paths (M73 vs M75, Loser M101 vs Loser M102); `winner paths` label
+- When a later-round match has a final score with real teams, show teams + owners instead
 - Final highlighted with accent card
 
 Legend: projected slot dot, result-in dot.

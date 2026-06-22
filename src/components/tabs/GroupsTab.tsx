@@ -3,7 +3,7 @@ import type { RankedTeamStanding } from '../../lib/aggregate';
 import { draftConfig } from '../../config';
 import { getPlayerTeamSet } from '../../lib/draftUtils';
 import { useTournament } from '../../context/TournamentContext';
-import { buildAllGroupTables, type GroupQualificationStatus, type GroupTable } from '../../lib/groups';
+import { buildAllGroupTables, type GroupTable } from '../../lib/groups';
 import { getFifaMatchUrl } from '../../lib/fifa';
 import { milestoneLabels } from '../../lib/labels';
 import { IconChevronDown } from '../icons/IconChevronDown';
@@ -21,15 +21,6 @@ interface GroupsTabProps {
   playerFilter: string;
   onPlayerFilterChange: (playerId: string) => void;
 }
-
-const QUALIFICATION_LABEL: Record<GroupQualificationStatus, string> = {
-  qualified: 'Qualified',
-  possible: 'In contention',
-  eliminated: 'Out',
-  'third-live': 'Best 3rd',
-  'third-out': '3rd out',
-  pending: '',
-};
 
 export function GroupsTab({
   playerFilter,
@@ -172,7 +163,6 @@ function GroupSection({
             render: (row) => (
               <span className={styles.teamCell}>
                 <TeamName team={row.team} strong />
-                <QualificationBadge status={row.qualification} projected={row.projected} />
                 <IconChevronDown
                   className={`${tableStyles.chevron} ${
                     expandedTeam === row.team ? tableStyles.chevronOpen : ''
@@ -230,27 +220,6 @@ function GroupSection({
         ]}
       />
     </section>
-  );
-}
-
-function QualificationBadge({
-  status,
-  projected,
-}: {
-  status: GroupQualificationStatus;
-  projected: boolean;
-}) {
-  const label = QUALIFICATION_LABEL[status];
-  if (!label) return null;
-
-  return (
-    <span
-      className={`${styles.qualBadge} ${styles[`qual_${status}`]}`}
-      title={projected ? 'Projected from current results' : undefined}
-    >
-      {label}
-      {projected ? '?' : ''}
-    </span>
   );
 }
 

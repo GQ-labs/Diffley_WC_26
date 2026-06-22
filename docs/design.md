@@ -105,10 +105,10 @@ Dark mode via `prefers-color-scheme` only (no manual toggle unless requested).
 
 | Component | Role |
 |-----------|------|
-| `KnockoutTab` | Mobile: round-by-round list; desktop: scrollable tree |
-| `BracketMatchup` | Compact tree cards — flag, 3-letter code, owner sublabel |
+| `KnockoutTab` | Narrow: round-by-round list; desktop (1024px+): scrollable column bracket |
+| `BracketMatchup` | Compact R32 cards — flag, 3-letter code, owner sublabel |
 
-Projected slots use dashed border + `proj.` label. Final match uses accent card styling.
+Round of 32 projected slots use dashed border + `proj.` label. Round of 16+ show feeder paths (M73 vs M75) until a result is in. Final match uses accent card styling.
 
 ### Info cards
 

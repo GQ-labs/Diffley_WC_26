@@ -1,6 +1,13 @@
 import { useMemo } from 'react';
 import { useTournament } from '../../context/TournamentContext';
-import { buildBracketTree, type BracketMatch } from '../../lib/bracket';
+import {
+  bracketMatchShowsFeederPaths,
+  buildBracketTree,
+  formatFeederSlot,
+  getBracketFeederTemplate,
+  type BracketMatch,
+  type BracketTree,
+} from '../../lib/bracket';
 import { useTeamOwners } from '../../hooks/useTeamOwners';
 import { getFifaMatchUrl } from '../../lib/fifa';
 import { PageHeader } from '../layout/TabNav';
@@ -65,7 +72,7 @@ export function KnockoutTab() {
         title="Knockout stage"
         description={
           bracket.projected
-            ? 'Live projected bracket from current group standings and results.'
+            ? 'Round of 32 from current group standings. Later rounds show which match winners meet.'
             : 'Confirmed knockout bracket from tournament results.'
         }
       />
@@ -81,7 +88,7 @@ export function KnockoutTab() {
         </span>
       </div>
 
-      <div className={styles.mobileRounds}>
+      <div className={styles.listRounds}>
         {ROUND_SECTIONS.map((section) => {
           const sectionMatches = section.nums
             .map((num) => byNum.get(num))
@@ -103,7 +110,7 @@ export function KnockoutTab() {
                     <BracketMatchCard
                       match={match}
                       owners={owners}
-                      variant="full"
+                      layout="list"
                       featured={match.round === 'final'}
                       subdued={match.round === 'thirdPlace'}
                     />
@@ -137,38 +144,11 @@ export function KnockoutTab() {
               byNum={byNum}
               owners={owners}
             />
-            <div className={styles.centerColumn}>
-              <BracketColumn
-                label="Semi-final"
-                matchNums={[101]}
-                byNum={byNum}
-                owners={owners}
-                compact
-              />
-              {bracket.final && (
-                <BracketMatchCard
-                  match={bracket.final}
-                  owners={owners}
-                  variant="compact"
-                  featured
-                />
-              )}
-              {bracket.thirdPlace && (
-                <BracketMatchCard
-                  match={bracket.thirdPlace}
-                  owners={owners}
-                  variant="compact"
-                  subdued
-                />
-              )}
-              <BracketColumn
-                label="Semi-final"
-                matchNums={[102]}
-                byNum={byNum}
-                owners={owners}
-                compact
-              />
-            </div>
+            <CenterBracketColumn
+              byNum={byNum}
+              owners={owners}
+              bracket={bracket}
+            />
             <BracketColumn
               label="Quarter-final"
               matchNums={RIGHT_QF}
@@ -203,21 +183,15 @@ function BracketColumn({
   byNum,
   owners,
   alignEnd = false,
-  compact = false,
 }: {
   label: string;
   matchNums: number[];
   byNum: Map<number, BracketMatch>;
   owners: ReturnType<typeof useTeamOwners>;
   alignEnd?: boolean;
-  compact?: boolean;
 }) {
   return (
-    <div
-      className={`${styles.column} ${alignEnd ? styles.columnEnd : ''} ${
-        compact ? styles.columnCompact : ''
-      }`}
-    >
+    <div className={`${styles.column} ${alignEnd ? styles.columnEnd : ''}`}>
       <p className={styles.columnLabel}>{label}</p>
       <div className={styles.columnMatches}>
         {matchNums.map((num) => {
@@ -228,7 +202,7 @@ function BracketColumn({
               key={num}
               match={match}
               owners={owners}
-              variant="compact"
+              layout="compact"
             />
           );
         })}
@@ -237,16 +211,83 @@ function BracketColumn({
   );
 }
 
+function CenterBracketColumn({
+  byNum,
+  owners,
+  bracket,
+}: {
+  byNum: Map<number, BracketMatch>;
+  owners: ReturnType<typeof useTeamOwners>;
+  bracket: BracketTree;
+}) {
+  const slots: Array<{
+    match: BracketMatch;
+    featured?: boolean;
+    subdued?: boolean;
+  }> = [];
+
+  const sf101 = byNum.get(101);
+  const sf102 = byNum.get(102);
+  if (sf101) slots.push({ match: sf101 });
+  if (bracket.final) slots.push({ match: bracket.final, featured: true });
+  if (bracket.thirdPlace) {
+    slots.push({ match: bracket.thirdPlace, subdued: true });
+  }
+  if (sf102) slots.push({ match: sf102 });
+
+  return (
+    <div className={styles.column}>
+      <p className={styles.columnLabel}>Semi-final</p>
+      <div className={styles.columnMatches}>
+        {slots.map(({ match, featured, subdued }) => (
+          <BracketMatchCard
+            key={match.num}
+            match={match}
+            owners={owners}
+            layout="compact"
+            featured={featured}
+            subdued={subdued}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function FeederPathMatchup({
+  slot1,
+  slot2,
+  compact = false,
+}: {
+  slot1: string;
+  slot2: string;
+  compact?: boolean;
+}) {
+  const label1 = formatFeederSlot(slot1);
+  const label2 = formatFeederSlot(slot2);
+
+  return (
+    <p
+      className={`${styles.feederMatchup} ${compact ? styles.feederMatchupCompact : ''}`}
+      aria-label={`${label1} vs ${label2}`}
+    >
+      <span className={styles.feederSlot}>{label1}</span>
+      <span className={styles.feederVs}>vs</span>
+      <span className={styles.feederSlot}>{label2}</span>
+    </p>
+  );
+}
+
 function BracketMatchCard({
   match,
   owners,
-  variant,
+  layout,
   featured = false,
   subdued = false,
 }: {
   match: BracketMatch;
   owners: ReturnType<typeof useTeamOwners>;
-  variant: 'compact' | 'full';
+  layout: 'list' | 'compact';
   featured?: boolean;
   subdued?: boolean;
 }) {
@@ -254,34 +295,53 @@ function BracketMatchCard({
     match.homeScore !== null && match.awayScore !== null
       ? `${match.homeScore}–${match.awayScore}`
       : 'vs';
+  const showFeeders = bracketMatchShowsFeederPaths(match);
+  const feederTemplate = showFeeders ? getBracketFeederTemplate(match.num) : null;
+  const compact = layout === 'compact';
+
   const url =
-    match.date && match.team1 !== 'TBD' && match.team2 !== 'TBD'
+    !showFeeders &&
+    match.date &&
+    match.team1 !== 'TBD' &&
+    match.team2 !== 'TBD'
       ? getFifaMatchUrl(match.date, match.team1, match.team2)
       : undefined;
 
+  const matchupLabel = feederTemplate
+    ? `${formatFeederSlot(feederTemplate.team1)} vs ${formatFeederSlot(feederTemplate.team2)}`
+    : `${match.team1} ${score} ${match.team2}`;
+
   const card = (
     <article
-      className={`${styles.matchCard} ${variant === 'full' ? styles.matchCardFull : ''} ${
+      className={`${styles.matchCard} ${compact ? styles.matchCardCompact : ''} ${
         featured ? styles.matchFeatured : ''
       } ${subdued ? styles.matchSubdued : ''} ${
-        match.projected ? styles.matchProjected : ''
+        match.projected && !showFeeders ? styles.matchProjected : ''
       }`}
-      aria-label={`${match.roundLabel} match ${match.num}, ${match.team1} ${score} ${match.team2}`}
+      aria-label={`${match.roundLabel} match ${match.num}, ${matchupLabel}`}
     >
       <div className={styles.matchMeta}>
         <span>M{match.num}</span>
         <span className={styles.matchMetaRight}>
-          {match.projected ? (
+          {showFeeders ? (
+            <span className={styles.feederHint}>winner paths</span>
+          ) : match.projected ? (
             <span className={styles.projectedTag}>proj.</span>
           ) : null}
-          {match.roundLabel !== 'Round of 32' &&
-          match.roundLabel !== 'Round of 16' &&
-          variant === 'full' ? (
+          {!compact &&
+          match.roundLabel !== 'Round of 32' &&
+          match.roundLabel !== 'Round of 16' ? (
             <span className={styles.roundPill}>{match.roundLabel}</span>
           ) : null}
         </span>
       </div>
-      {variant === 'compact' ? (
+      {showFeeders && feederTemplate ? (
+        <FeederPathMatchup
+          slot1={feederTemplate.team1}
+          slot2={feederTemplate.team2}
+          compact={compact}
+        />
+      ) : compact ? (
         <BracketMatchup
           team1={match.team1}
           score={score}

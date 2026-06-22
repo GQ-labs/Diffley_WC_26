@@ -29,8 +29,8 @@
   background: var(--color-surface);
 }
 
-/* Mobile: round-by-round list */
-.mobileRounds {
+/* Narrow screens: round-by-round list */
+.listRounds {
   display: flex;
   flex-direction: column;
   gap: var(--space-8);
@@ -57,7 +57,7 @@
   gap: var(--space-3);
 }
 
-/* Desktop: horizontal bracket tree */
+/* Wide screens: horizontal bracket columns */
 .desktopBracket {
   display: none;
 }
@@ -72,22 +72,23 @@
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   padding-bottom: var(--space-2);
+  scrollbar-gutter: stable;
 }
 
 .bracket {
   display: grid;
-  grid-template-columns: repeat(7, 10.5rem);
+  grid-template-columns: repeat(7, 11rem);
   gap: var(--space-4);
   width: max-content;
   min-width: 100%;
-  align-items: stretch;
+  align-items: start;
 }
 
 .column {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
-  width: 10.5rem;
+  width: 11rem;
 }
 
 .columnEnd {
@@ -98,33 +99,24 @@
   text-align: right;
 }
 
-.columnCompact {
-  min-height: 0;
-}
-
 .columnLabel {
+  position: sticky;
+  top: 0;
+  z-index: 1;
   margin: 0;
+  padding-bottom: var(--space-2);
   font-size: var(--text-xs);
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--color-text-muted);
+  background: var(--color-bg);
 }
 
 .columnMatches {
   display: flex;
   flex-direction: column;
-  justify-content: space-around;
   gap: var(--space-3);
-  flex: 1;
-}
-
-.centerColumn {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: var(--space-4);
-  width: 10.5rem;
 }
 
 .matchLink {
@@ -134,7 +126,7 @@
 }
 
 .matchCard {
-  padding: var(--space-3);
+  padding: var(--space-4);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   background: var(--color-surface);
@@ -142,8 +134,8 @@
   transition: border-color 120ms ease, background 120ms ease;
 }
 
-.matchCardFull {
-  padding: var(--space-4);
+.matchCardCompact {
+  padding: var(--space-3);
 }
 
 .matchLink:hover .matchCard,
@@ -185,13 +177,49 @@
   font-weight: 500;
 }
 
+.feederHint {
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
 .roundPill {
   font-size: var(--text-xs);
   color: var(--color-text-muted);
 }
 
-@media (min-width: 768px) {
-  .mobileRounds {
+.feederMatchup {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  margin: 0;
+  font-size: var(--text-base);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.feederMatchupCompact {
+  font-size: var(--text-sm);
+  gap: var(--space-2);
+}
+
+.feederSlot {
+  min-width: 3.5rem;
+  text-align: center;
+}
+
+.feederMatchupCompact .feederSlot {
+  min-width: 2.75rem;
+}
+
+.feederVs {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  font-weight: 400;
+}
+
+@media (min-width: 1024px) {
+  .listRounds {
     display: none;
   }
 
@@ -200,19 +228,19 @@
   }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 1023px) {
   .scrollHint {
     display: none;
   }
 }
 
-@media (min-width: 768px) and (max-width: 1100px) {
+@media (min-width: 1024px) and (max-width: 1280px) {
   .scrollHint {
     display: block;
   }
 }
 
-@media (min-width: 1101px) {
+@media (min-width: 1281px) {
   .scrollHint {
     display: none;
   }

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { buildBracketTree, r32DataAvailableFromServer } from './bracket';
+import { completeGroupStageMatches } from './testFixtures';
+import { buildBracketTree, formatFeederSlot, getBracketFeederTemplate, bracketMatchShowsFeederPaths, r32DataAvailableFromServer } from './bracket';
 import type { NormalizedMatch } from './types/match';
 
 function groupMatch(
@@ -76,8 +77,32 @@ describe('bracket', () => {
     expect(tree.projected).toBe(true);
   });
 
+  it('projects winners through later knockout rounds for display', () => {
+    const matches = completeGroupStageMatches();
+    const tree = buildBracketTree(matches, { projectFutureRounds: true });
+    const match90 = tree.roundOf16.find((match) => match.num === 90);
+    expect(match90?.team1).not.toBe('TBD');
+    expect(match90?.team2).not.toBe('TBD');
+    expect(match90?.projected).toBe(true);
+
+    const match97 = tree.quarterFinals.find((match) => match.num === 97);
+    expect(match97?.team1).not.toBe('TBD');
+    expect(match97?.team2).not.toBe('TBD');
+  });
+
   it('requires all group matches before R32 data is considered available', () => {
     const matches = [koMatch(73, 'Mexico', 'USA', 'roundOf32')];
     expect(r32DataAvailableFromServer(matches)).toBe(false);
+  });
+
+  it('formats feeder paths for later knockout rounds', () => {
+    expect(formatFeederSlot('W73')).toBe('M73');
+    expect(formatFeederSlot('L101')).toBe('Loser M101');
+    expect(getBracketFeederTemplate(90)).toEqual({ team1: 'W73', team2: 'W75' });
+
+    const tree = buildBracketTree(completeGroupStageMatches());
+    const r16 = tree.roundOf16.find((match) => match.num === 90);
+    expect(r16).toBeDefined();
+    expect(bracketMatchShowsFeederPaths(r16!)).toBe(true);
   });
 });

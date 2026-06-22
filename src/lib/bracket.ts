@@ -34,6 +34,11 @@ export interface BracketTree {
   projected: boolean;
 }
 
+export interface BuildBracketTreeOptions {
+  /** When true, project winners through unplayed knockout ties for display. */
+  projectFutureRounds?: boolean;
+}
+
 const R32_TEMPLATES: Array<{ num: number; team1: string; team2: string }> = [
   { num: 73, team1: '2A', team2: '2B' },
   { num: 74, team1: '1E', team2: '3A/B/C/D/F' },
@@ -173,20 +178,88 @@ function resolveSeedSlot(
   return { team: 'TBD', projected: true };
 }
 
+interface FeedResolution {
+  team: string;
+  projected: boolean;
+}
+
 function resolveFeedSlot(
   slot: string,
   winners: Map<number, string>,
   losers: Map<number, string>,
-): string {
+  projectedWinners: Map<number, string>,
+  projectedLosers: Map<number, string>,
+): FeedResolution {
   const winnerMatch = slot.match(/^W(\d+)$/);
   if (winnerMatch) {
-    return winners.get(Number(winnerMatch[1])) ?? 'TBD';
+    const num = Number(winnerMatch[1]);
+    if (winners.has(num)) {
+      return { team: winners.get(num)!, projected: false };
+    }
+    if (projectedWinners.has(num)) {
+      return { team: projectedWinners.get(num)!, projected: true };
+    }
+    return { team: 'TBD', projected: true };
   }
   const loserMatch = slot.match(/^L(\d+)$/);
   if (loserMatch) {
-    return losers.get(Number(loserMatch[1])) ?? 'TBD';
+    const num = Number(loserMatch[1]);
+    if (losers.has(num)) {
+      return { team: losers.get(num)!, projected: false };
+    }
+    if (projectedLosers.has(num)) {
+      return { team: projectedLosers.get(num)!, projected: true };
+    }
+    return { team: 'TBD', projected: true };
   }
-  return slot;
+  return { team: slot, projected: !isCanonicalTeamName(slot) };
+}
+
+function groupRowFor(team: string, tables: GroupTable[]) {
+  for (const table of tables) {
+    const row = table.rows.find((entry) => entry.team === team);
+    if (row) return row;
+  }
+  return null;
+}
+
+function preferredWinner(
+  team1: string,
+  team2: string,
+  tables: GroupTable[],
+): string | null {
+  if (!isCanonicalTeamName(team1) || !isCanonicalTeamName(team2)) return null;
+
+  const a = groupRowFor(team1, tables);
+  const b = groupRowFor(team2, tables);
+  if (!a || !b) return team1;
+
+  if (b.points !== a.points) return b.points > a.points ? b.team : a.team;
+  if (b.goalDifference !== a.goalDifference) {
+    return b.goalDifference > a.goalDifference ? b.team : a.team;
+  }
+  if (b.goalsFor !== a.goalsFor) {
+    return b.goalsFor > a.goalsFor ? b.team : a.team;
+  }
+  return team1;
+}
+
+function recordProjectedOutcomes(
+  match: BracketMatch,
+  tables: GroupTable[],
+  projectedWinners: Map<number, string>,
+  projectedLosers: Map<number, string>,
+): void {
+  if (match.winner) return;
+
+  const projected = preferredWinner(match.team1, match.team2, tables);
+  if (!projected) return;
+
+  projectedWinners.set(match.num, projected);
+  const loser = match.team1 === projected ? match.team2 : match.team1;
+  if (isCanonicalTeamName(loser)) {
+    projectedLosers.set(match.num, loser);
+  }
 }
 
 function mergeServerTeams(
@@ -213,25 +286,29 @@ function buildResolvedMatch(
   byNum: Map<number, NormalizedMatch>,
   winners: Map<number, string>,
   losers: Map<number, string>,
+  projectedWinners: Map<number, string>,
+  projectedLosers: Map<number, string>,
 ): BracketMatch {
   const server = byNum.get(template.num);
   const resolveTeam1 =
     template.team1.startsWith('W') || template.team1.startsWith('L')
-      ? {
-          team: resolveFeedSlot(template.team1, winners, losers),
-          projected: !isCanonicalTeamName(
-            resolveFeedSlot(template.team1, winners, losers),
-          ),
-        }
+      ? resolveFeedSlot(
+          template.team1,
+          winners,
+          losers,
+          projectedWinners,
+          projectedLosers,
+        )
       : resolveSeedSlot(template.team1, tables, thirdByMatchNum, template.num);
   const resolveTeam2 =
     template.team2.startsWith('W') || template.team2.startsWith('L')
-      ? {
-          team: resolveFeedSlot(template.team2, winners, losers),
-          projected: !isCanonicalTeamName(
-            resolveFeedSlot(template.team2, winners, losers),
-          ),
-        }
+      ? resolveFeedSlot(
+          template.team2,
+          winners,
+          losers,
+          projectedWinners,
+          projectedLosers,
+        )
       : resolveSeedSlot(template.team2, tables, thirdByMatchNum, template.num);
 
   const team1 = server
@@ -270,12 +347,18 @@ export function r32DataAvailableFromServer(matches: NormalizedMatch[]): boolean 
   });
 }
 
-export function buildBracketTree(matches: NormalizedMatch[]): BracketTree {
+export function buildBracketTree(
+  matches: NormalizedMatch[],
+  options: BuildBracketTreeOptions = {},
+): BracketTree {
+  const projectFutureRounds = options.projectFutureRounds ?? false;
   const tables = buildAllGroupTables(matches);
   const thirdByMatchNum = assignThirdPlaceTeams(tables);
   const byNum = matchesByNum(matches);
   const winners = new Map<number, string>();
   const losers = new Map<number, string>();
+  const projectedWinners = new Map<number, string>();
+  const projectedLosers = new Map<number, string>();
 
   const roundOf32 = R32_TEMPLATES.map((template) =>
     buildResolvedMatch(
@@ -289,6 +372,8 @@ export function buildBracketTree(matches: NormalizedMatch[]): BracketTree {
       byNum,
       winners,
       losers,
+      projectedWinners,
+      projectedLosers,
     ),
   );
 
@@ -297,12 +382,28 @@ export function buildBracketTree(matches: NormalizedMatch[]): BracketTree {
       winners.set(match.num, match.winner);
       const loser = match.team1 === match.winner ? match.team2 : match.team1;
       if (isCanonicalTeamName(loser)) losers.set(match.num, loser);
+    } else if (projectFutureRounds) {
+      recordProjectedOutcomes(
+        match,
+        tables,
+        projectedWinners,
+        projectedLosers,
+      );
     }
   }
 
   const roundOf16 = LATER_ROUNDS.filter((match) => match.round === 'roundOf16').map(
     (template) =>
-      buildResolvedMatch(template, tables, thirdByMatchNum, byNum, winners, losers),
+      buildResolvedMatch(
+        template,
+        tables,
+        thirdByMatchNum,
+        byNum,
+        winners,
+        losers,
+        projectedWinners,
+        projectedLosers,
+      ),
   );
 
   for (const match of roundOf16) {
@@ -310,13 +411,29 @@ export function buildBracketTree(matches: NormalizedMatch[]): BracketTree {
       winners.set(match.num, match.winner);
       const loser = match.team1 === match.winner ? match.team2 : match.team1;
       if (isCanonicalTeamName(loser)) losers.set(match.num, loser);
+    } else if (projectFutureRounds) {
+      recordProjectedOutcomes(
+        match,
+        tables,
+        projectedWinners,
+        projectedLosers,
+      );
     }
   }
 
   const quarterFinals = LATER_ROUNDS.filter(
     (match) => match.round === 'quarterFinal',
   ).map((template) =>
-    buildResolvedMatch(template, tables, thirdByMatchNum, byNum, winners, losers),
+    buildResolvedMatch(
+      template,
+      tables,
+      thirdByMatchNum,
+      byNum,
+      winners,
+      losers,
+      projectedWinners,
+      projectedLosers,
+    ),
   );
 
   for (const match of quarterFinals) {
@@ -324,12 +441,28 @@ export function buildBracketTree(matches: NormalizedMatch[]): BracketTree {
       winners.set(match.num, match.winner);
       const loser = match.team1 === match.winner ? match.team2 : match.team1;
       if (isCanonicalTeamName(loser)) losers.set(match.num, loser);
+    } else if (projectFutureRounds) {
+      recordProjectedOutcomes(
+        match,
+        tables,
+        projectedWinners,
+        projectedLosers,
+      );
     }
   }
 
   const semiFinals = LATER_ROUNDS.filter((match) => match.round === 'semiFinal').map(
     (template) =>
-      buildResolvedMatch(template, tables, thirdByMatchNum, byNum, winners, losers),
+      buildResolvedMatch(
+        template,
+        tables,
+        thirdByMatchNum,
+        byNum,
+        winners,
+        losers,
+        projectedWinners,
+        projectedLosers,
+      ),
   );
 
   for (const match of semiFinals) {
@@ -337,6 +470,13 @@ export function buildBracketTree(matches: NormalizedMatch[]): BracketTree {
       winners.set(match.num, match.winner);
       const loser = match.team1 === match.winner ? match.team2 : match.team1;
       if (isCanonicalTeamName(loser)) losers.set(match.num, loser);
+    } else if (projectFutureRounds) {
+      recordProjectedOutcomes(
+        match,
+        tables,
+        projectedWinners,
+        projectedLosers,
+      );
     }
   }
 
@@ -351,6 +491,8 @@ export function buildBracketTree(matches: NormalizedMatch[]): BracketTree {
         byNum,
         winners,
         losers,
+        projectedWinners,
+        projectedLosers,
       )
     : null;
   const final = finalTemplate
@@ -361,6 +503,8 @@ export function buildBracketTree(matches: NormalizedMatch[]): BracketTree {
         byNum,
         winners,
         losers,
+        projectedWinners,
+        projectedLosers,
       )
     : null;
 
@@ -436,4 +580,39 @@ export function advancingThirdLetters(tables: GroupTable[]): string[] {
   return rankThirdPlaceTeams(tables)
     .filter((entry) => entry.advances)
     .map((entry) => entry.letter);
+}
+
+/** FIFA bracket feeder slots for knockout matches after the round of 32. */
+export function getBracketFeederTemplate(
+  matchNum: number,
+): { team1: string; team2: string } | null {
+  const template = LATER_ROUNDS.find((match) => match.num === matchNum);
+  if (!template) return null;
+  return { team1: template.team1, team2: template.team2 };
+}
+
+/** Turn W74 / L101 template slots into display labels (M74, Loser M101). */
+export function formatFeederSlot(slot: string): string {
+  const winner = slot.match(/^W(\d+)$/);
+  if (winner) return `M${winner[1]}`;
+  const loser = slot.match(/^L(\d+)$/);
+  if (loser) return `Loser M${loser[1]}`;
+  return slot;
+}
+
+/** True when a later-round match has a final score with real team names. */
+export function bracketMatchHasResult(match: BracketMatch): boolean {
+  return (
+    match.homeScore !== null &&
+    match.awayScore !== null &&
+    isCanonicalTeamName(match.team1) &&
+    isCanonicalTeamName(match.team2)
+  );
+}
+
+/** Show M73-style feeder paths instead of projected countries. */
+export function bracketMatchShowsFeederPaths(match: BracketMatch): boolean {
+  if (match.round === 'roundOf32') return false;
+  if (bracketMatchHasResult(match)) return false;
+  return getBracketFeederTemplate(match.num) !== null;
 }
