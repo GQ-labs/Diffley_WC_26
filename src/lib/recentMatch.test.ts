@@ -38,4 +38,60 @@ describe('getLatestResult', () => {
   it('returns null when no matches played', () => {
     expect(getLatestResult([m({ team1: 'A', team2: 'B' })])).toBeNull();
   });
+
+  it('orders same-day results by kickoff (latest start first)', () => {
+    const results = getLatestResults(
+      [
+        m({
+          id: 'm1',
+          team1: 'Uruguay',
+          team2: 'Cape Verde',
+          homeScore: 2,
+          awayScore: 2,
+          date: '2026-06-21',
+          kickoffTime: '13:00 UTC-6',
+        }),
+        m({
+          id: 'm2',
+          team1: 'Spain',
+          team2: 'Saudi Arabia',
+          homeScore: 4,
+          awayScore: 0,
+          date: '2026-06-21',
+          kickoffTime: '20:00 UTC-6',
+        }),
+      ],
+      2,
+    );
+
+    expect(results.map((r) => r.team1)).toEqual(['Spain', 'Uruguay']);
+  });
+
+  it('prefers a later calendar day over a later kickoff on the previous day', () => {
+    const results = getLatestResults(
+      [
+        m({
+          id: 'm3',
+          team1: 'Spain',
+          team2: 'Saudi Arabia',
+          homeScore: 4,
+          awayScore: 0,
+          date: '2026-06-21',
+          kickoffTime: '23:00 UTC-6',
+        }),
+        m({
+          id: 'm4',
+          team1: 'Argentina',
+          team2: 'Austria',
+          homeScore: 2,
+          awayScore: 0,
+          date: '2026-06-22',
+          kickoffTime: '13:00 UTC-6',
+        }),
+      ],
+      2,
+    );
+
+    expect(results.map((r) => r.team1)).toEqual(['Argentina', 'Spain']);
+  });
 });

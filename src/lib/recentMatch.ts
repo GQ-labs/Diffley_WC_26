@@ -1,4 +1,5 @@
 import type { NormalizedMatch } from './types/match';
+import { parseOpenFootballKickoff } from './upcomingMatches';
 
 export interface LatestResult {
   id: string;
@@ -27,14 +28,29 @@ function toLatestResult(match: NormalizedMatch): LatestResult | null {
   };
 }
 
+function matchNumFromId(id: string): number {
+  const match = id.match(/^m(\d+)$/i);
+  return match ? Number(match[1]) : 0;
+}
+
+/** Sort key: kickoff instant, latest start first. */
+function getKickoffSortMs(match: NormalizedMatch): number {
+  const kickoff = parseOpenFootballKickoff(match.date, match.kickoffTime);
+  if (kickoff) {
+    return kickoff.getTime();
+  }
+
+  const dayStart = Date.parse(`${match.date}T12:00:00Z`);
+  return dayStart + matchNumFromId(match.id);
+}
+
 function sortPlayedMatches(matches: NormalizedMatch[]): NormalizedMatch[] {
   return matches
     .filter((match) => match.homeScore !== null && match.awayScore !== null)
-    .sort((a, b) => `${b.date}|${b.id}`.localeCompare(`${a.date}|${a.id}`));
+    .sort((a, b) => getKickoffSortMs(b) - getKickoffSortMs(a));
 }
 
-export function getLatestResults(
-  matches: NormalizedMatch[],
+export function getLatestResults(  matches: NormalizedMatch[],
   limit = 3,
 ): LatestResult[] {
   return sortPlayedMatches(matches)
