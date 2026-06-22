@@ -15,6 +15,10 @@ import {
 } from './scoring';
 import type { NormalizedMatch } from './types/match';
 import type { ScoringConfig } from '../types/config';
+import {
+  completeGroupStageMatches,
+  placeholderR32Except,
+} from './testFixtures';
 
 const scoring = scoringConfig as ScoringConfig;
 
@@ -33,6 +37,45 @@ function match(
     group: partial.group,
     ...partial,
   };
+}
+
+function groupResult(
+  group: string,
+  team1: string,
+  team2: string,
+  homeScore: number,
+  awayScore: number,
+  id: string,
+): NormalizedMatch {
+  return match({
+    id,
+    group,
+    team1,
+    team2,
+    homeScore,
+    awayScore,
+    stage: 'group',
+    knockoutRound: null,
+    roundLabel: 'Matchday 1',
+  });
+}
+
+function mexicoGroupA(): NormalizedMatch[] {
+  return [
+    groupResult('Group A', 'Mexico', 'South Africa', 2, 0, 'a1'),
+    groupResult('Group A', 'Korea', 'Czechia', 2, 1, 'a2'),
+    groupResult('Group A', 'Czechia', 'South Africa', 0, 1, 'a3'),
+    groupResult('Group A', 'Mexico', 'Korea', 1, 1, 'a4'),
+    groupResult('Group A', 'Czechia', 'Mexico', 0, 2, 'a5'),
+    groupResult('Group A', 'South Africa', 'Korea', 0, 2, 'a6'),
+  ];
+}
+
+function completeGroupStage(): NormalizedMatch[] {
+  return [
+    ...completeGroupStageMatches().filter((entry) => entry.group !== 'Group A'),
+    ...mexicoGroupA(),
+  ];
 }
 
 describe('match points', () => {
@@ -72,12 +115,12 @@ describe('knockout milestones from openfootball fixtures', () => {
     expect(inferTeamMilestone('Czechia', matches)).toBe('groupExit');
   });
 
-  it('awards R32 when openfootball slots a real team name in Round of 32', () => {
+  it('does not award R32 bonus until group stage is complete and server lists all R32 teams', () => {
     const matches = [
       match({
-        id: 'k1',
+        id: 'm73',
         team1: 'Mexico',
-        team2: '2B',
+        team2: 'USA',
         homeScore: null,
         awayScore: null,
         stage: 'knockout',
@@ -85,9 +128,8 @@ describe('knockout milestones from openfootball fixtures', () => {
         roundLabel: 'Round of 32',
       }),
     ];
-    expect(hasQualifiedForRoundOf32('Mexico', matches)).toBe(true);
-    expect(inferTeamMilestone('Mexico', matches)).toBe('roundOf32');
-    expect(getCumulativeMilestonePoints('Mexico', matches, scoring.knockoutMilestone)).toBe(1);
+    expect(hasQualifiedForRoundOf32('Mexico', matches)).toBe(false);
+    expect(inferTeamMilestone('Mexico', matches)).toBe('groupExit');
   });
 
   it('ignores placeholder-only R32 fixtures', () => {
@@ -104,10 +146,11 @@ describe('knockout milestones from openfootball fixtures', () => {
     expect(isTeamSlottedInRound('Mexico', 'roundOf32', matches)).toBe(false);
   });
 
-  it('keeps R32 bonus for a team eliminated in round of 32', () => {
+  it('keeps R32 bonus for a team eliminated in round of 32 after bracket is confirmed', () => {
     const matches = [
+      ...completeGroupStage(),
       match({
-        id: 'k1',
+        id: 'm73',
         team1: 'Mexico',
         team2: 'USA',
         homeScore: 2,
@@ -116,6 +159,7 @@ describe('knockout milestones from openfootball fixtures', () => {
         knockoutRound: 'roundOf32',
         roundLabel: 'Round of 32',
       }),
+      ...placeholderR32Except(73),
     ];
     expect(inferTeamMilestone('USA', matches)).toBe('roundOf32');
     expect(inferTeamMilestone('Mexico', matches)).toBe('roundOf16');
@@ -123,8 +167,9 @@ describe('knockout milestones from openfootball fixtures', () => {
 
   it('awards R16 when team wins R32 before R16 kicks off', () => {
     const matches = [
+      ...completeGroupStage(),
       match({
-        id: 'k1',
+        id: 'm73',
         team1: 'Mexico',
         team2: 'USA',
         homeScore: 2,
@@ -133,10 +178,11 @@ describe('knockout milestones from openfootball fixtures', () => {
         knockoutRound: 'roundOf32',
         roundLabel: 'Round of 32',
       }),
+      ...placeholderR32Except(73),
       match({
-        id: 'k2',
+        id: 'm89',
         team1: 'Mexico',
-        team2: 'W78',
+        team2: 'Germany',
         homeScore: null,
         awayScore: null,
         stage: 'knockout',
@@ -151,7 +197,7 @@ describe('knockout milestones from openfootball fixtures', () => {
   it('awards semi-final to winner and quarter-final to loser of QF', () => {
     const matches = [
       match({
-        id: 'k1',
+        id: 'm97',
         team1: 'Brazil',
         team2: 'France',
         homeScore: 0,
@@ -168,7 +214,7 @@ describe('knockout milestones from openfootball fixtures', () => {
   it('awards final bonus to finalists', () => {
     const scheduled = [
       match({
-        id: 'f',
+        id: 'm104',
         team1: 'Argentina',
         team2: 'France',
         homeScore: null,
@@ -183,7 +229,7 @@ describe('knockout milestones from openfootball fixtures', () => {
 
     const played = [
       match({
-        id: 'f',
+        id: 'm104',
         team1: 'Argentina',
         team2: 'France',
         homeScore: 3,
@@ -201,11 +247,9 @@ describe('knockout milestones from openfootball fixtures', () => {
 describe('team standing totals', () => {
   it('sums match points and milestone bonus', () => {
     const matches = [
-      match({ id: 'g1', group: 'Group A', team1: 'Mexico', team2: 'South Africa', homeScore: 2, awayScore: 0 }),
-      match({ id: 'g2', group: 'Group A', team1: 'Mexico', team2: 'Korea', homeScore: 1, awayScore: 1 }),
-      match({ id: 'g3', group: 'Group A', team1: 'Czechia', team2: 'Mexico', homeScore: 0, awayScore: 2 }),
+      ...completeGroupStage(),
       match({
-        id: 'k1',
+        id: 'm73',
         team1: 'Mexico',
         team2: 'USA',
         homeScore: 1,
@@ -214,8 +258,9 @@ describe('team standing totals', () => {
         knockoutRound: 'roundOf32',
         roundLabel: 'Round of 32',
       }),
+      ...placeholderR32Except(73),
       match({
-        id: 'k2',
+        id: 'm89',
         team1: 'Mexico',
         team2: 'Germany',
         homeScore: 0,
@@ -236,7 +281,7 @@ describe('team standing totals', () => {
   it('adds +1 per knockout round reached', () => {
     const matches = [
       match({
-        id: 'k1',
+        id: 'm97',
         team1: 'Brazil',
         team2: 'France',
         homeScore: 0,

@@ -1,5 +1,12 @@
 import teamAliases from '../../data/team-aliases.json';
 import type { ScoringConfig } from '../types/config';
+import {
+  buildBracketTree,
+  r32DataAvailableFromServer,
+  teamInBracketRound,
+  teamWonBracketRound,
+} from './bracket';
+import { allGroupMatchesComplete, isCanonicalTeamName } from './groups';
 import { getMatchOutcome } from './matchOutcome';
 import type { KnockoutMilestoneKey, NormalizedMatch } from './types/match';
 
@@ -45,20 +52,19 @@ export function wonKnockoutRound(
   round: KnockoutMilestoneKey,
   matches: NormalizedMatch[],
 ): boolean {
-  return matches.some((m) => {
-    if (m.knockoutRound !== round) return false;
-    if (m.homeScore === null || m.awayScore === null) return false;
-    if (m.team1 !== team && m.team2 !== team) return false;
-    return getMatchOutcome(team, m) === 'win';
-  });
+  const tree = buildBracketTree(matches);
+  return teamWonBracketRound(tree, team, round);
 }
 
-/** R32 bonus: openfootball has assigned this team to a Round of 32 fixture. */
+/** R32 bonus: group stage finished and server lists real teams in all R32 fixtures. */
 export function hasQualifiedForRoundOf32(
   team: string,
   matches: NormalizedMatch[],
 ): boolean {
-  return isTeamSlottedInRound(team, 'roundOf32', matches);
+  if (!allGroupMatchesComplete(matches)) return false;
+  if (!r32DataAvailableFromServer(matches)) return false;
+  const tree = buildBracketTree(matches);
+  return teamInBracketRound(tree, team, 'roundOf32');
 }
 
 export function hasReachedKnockoutStage(
@@ -66,30 +72,30 @@ export function hasReachedKnockoutStage(
   stage: KnockoutMilestoneKey,
   matches: NormalizedMatch[],
 ): boolean {
+  const tree = buildBracketTree(matches);
+
   switch (stage) {
     case 'roundOf16':
       return (
-        wonKnockoutRound(team, 'roundOf32', matches) ||
-        isTeamSlottedInRound(team, 'roundOf16', matches) ||
-        playedInKnockoutRound(team, 'roundOf16', matches)
+        teamWonBracketRound(tree, team, 'roundOf32') ||
+        teamInBracketRound(tree, team, 'roundOf16')
       );
     case 'quarterFinal':
       return (
-        wonKnockoutRound(team, 'roundOf16', matches) ||
-        isTeamSlottedInRound(team, 'quarterFinal', matches) ||
-        playedInKnockoutRound(team, 'quarterFinal', matches)
+        teamWonBracketRound(tree, team, 'roundOf16') ||
+        teamInBracketRound(tree, team, 'quarterFinal')
       );
     case 'semiFinal':
       return (
-        wonKnockoutRound(team, 'quarterFinal', matches) ||
-        isTeamSlottedInRound(team, 'semiFinal', matches) ||
-        playedInKnockoutRound(team, 'semiFinal', matches)
+        teamWonBracketRound(tree, team, 'quarterFinal') ||
+        teamInBracketRound(tree, team, 'semiFinal')
       );
     case 'final':
       return (
-        wonKnockoutRound(team, 'semiFinal', matches) ||
-        isTeamSlottedInRound(team, 'final', matches) ||
-        playedInKnockoutRound(team, 'final', matches)
+        teamWonBracketRound(tree, team, 'semiFinal') ||
+        (tree.final
+          ? tree.final.team1 === team || tree.final.team2 === team
+          : false)
       );
     default:
       return false;
@@ -97,8 +103,8 @@ export function hasReachedKnockoutStage(
 }
 
 /**
- * Milestone from openfootball fixture data only — no computed group tables.
- * Bonus applies when a team is slotted into a round or advances (wins) into the next.
+ * Milestone from the tournament bracket tree.
+ * R32 bonus waits until all group matches are done and openfootball lists real R32 teams.
  */
 export function inferTeamMilestone(
   team: string,
@@ -160,4 +166,25 @@ export function getCumulativeMilestonePoints(
     if (!hasReachedBonusStage(team, stage, matches)) return total;
     return total + bonuses[stage];
   }, 0);
+}
+
+/** @deprecated kept for tests that assert openfootball slot detection */
+export function isTeamListedInServerRound(
+  team: string,
+  round: KnockoutMilestoneKey,
+  matches: NormalizedMatch[],
+): boolean {
+  return isTeamSlottedInRound(team, round, matches);
+}
+
+/** @deprecated kept for direct outcome checks in tests */
+export function getKnockoutRoundOutcome(
+  team: string,
+  match: NormalizedMatch,
+): ReturnType<typeof getMatchOutcome> {
+  return getMatchOutcome(team, match);
+}
+
+export function isRealKnockoutTeamName(name: string): boolean {
+  return isCanonicalTeamName(name);
 }

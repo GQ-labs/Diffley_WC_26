@@ -119,9 +119,12 @@ export function normalizeOpenFootballMatch(
   const homeScore = ft && ft.length >= 2 ? ft[0] : null;
   const awayScore = ft && ft.length >= 2 ? ft[1] : null;
   const { stage, knockoutRound } = classifyRound(raw.round, Boolean(raw.group));
+  const pen = raw.score?.pen;
+  const penHomeScore = pen && pen.length >= 2 ? pen[0] : null;
+  const penAwayScore = pen && pen.length >= 2 ? pen[1] : null;
   const decidedByPenalties =
     Boolean(raw.penalty) ||
-    (raw.score?.pen !== undefined && homeScore === awayScore);
+    (pen !== undefined && homeScore === awayScore);
 
   return {
     id: raw.num ? `m${raw.num}` : `g${index}`,
@@ -135,6 +138,8 @@ export function normalizeOpenFootballMatch(
     date: raw.date ?? '',
     kickoffTime: raw.time,
     decidedByPenalties,
+    penHomeScore,
+    penAwayScore,
     group: raw.group,
   };
 }

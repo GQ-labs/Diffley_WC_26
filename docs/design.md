@@ -30,7 +30,7 @@ The app should feel like a **clean internal tool**, not a consumer game or fan s
 - Max content width: `960px` (`--max-width`)
 - Single-column on mobile; tables scroll horizontally inside a container when needed
 - Header: app title + matches played / last updated + global Refresh
-- Tab bar: Leaderboard | Teams | Fixtures | Rules
+- Tab bar: Leaderboard | Groups | Knockout stage | Fixtures | Rules
 - Footer: one line of muted metadata
 
 ### Leaderboard summary row
@@ -83,7 +83,7 @@ Dark mode via `prefers-color-scheme` only (no manual toggle unless requested).
 
 ### Tables (`DataTable`)
 
-- Primary data display for leaderboard, teams, fixtures
+- Primary data display for leaderboard, groups, fixtures, and knockout round lists
 - Sticky header on long lists
 - Rank column: fixed narrow width
 - Expandable rows: chevron on player/team name; keyboard support (Enter/Space)
@@ -92,7 +92,7 @@ Dark mode via `prefers-color-scheme` only (no manual toggle unless requested).
 
 ### Player filter (`PlayerFilter`)
 
-- Shared across Leaderboard, Teams, Fixtures
+- Shared across Leaderboard, Groups, Fixtures (not Knockout stage)
 - Sits in page header actions alongside tab-specific controls (e.g. Refresh)
 
 ### Team names (`TeamName`, `FixtureMatchup`)
@@ -100,6 +100,15 @@ Dark mode via `prefers-color-scheme` only (no manual toggle unless requested).
 - Flag + name inline
 - Team names link to FIFA team pages by default
 - Avoid nested links (disable team links inside a match-level link)
+
+### Knockout bracket
+
+| Component | Role |
+|-----------|------|
+| `KnockoutTab` | Mobile: round-by-round list; desktop: scrollable tree |
+| `BracketMatchup` | Compact tree cards — flag, 3-letter code, owner sublabel |
+
+Projected slots use dashed border + `proj.` label. Final match uses accent card styling.
 
 ### Info cards
 
@@ -159,10 +168,14 @@ src/components/layout/TabNav.tsx
 src/components/ui/DataTable.tsx
 src/components/ui/TeamName.tsx
 src/components/ui/TeamFlag.tsx
+src/components/ui/BracketMatchup.tsx
 src/components/ui/UpcomingMatchesCard.tsx
 src/components/ui/CurrentMatchCard.tsx
 src/components/ui/RecentResultsCard.tsx
-src/components/tabs/
+src/components/tabs/GroupsTab.tsx
+src/components/tabs/KnockoutTab.tsx
+src/lib/groups.ts
+src/lib/bracket.ts
 docs/wireframes.md
 ```
 

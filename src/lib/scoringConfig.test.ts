@@ -31,7 +31,7 @@ describe('scoring.json', () => {
     expect(scoring.rulesText.summary).toMatch(/knockout round/i);
     expect(scoring.rulesText.matchPoints).toMatch(/Win = 3/);
     expect(scoring.rulesText.penalties).toMatch(/penalt/i);
-    expect(scoring.rulesText.milestone).toMatch(/openfootball/i);
+    expect(scoring.rulesText.milestone).toMatch(/bracket/i);
     expect(scoring.rulesText.playerTotal).toMatch(/three teams/i);
   });
 });

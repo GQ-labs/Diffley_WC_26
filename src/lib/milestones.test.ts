@@ -5,6 +5,10 @@ import {
   inferTeamMilestone,
 } from './milestones';
 import type { NormalizedMatch } from './types/match';
+import {
+  completeGroupStageMatches,
+  placeholderR32Except,
+} from './testFixtures';
 
 function match(
   partial: Partial<NormalizedMatch> & Pick<NormalizedMatch, 'team1' | 'team2'>,
@@ -26,6 +30,7 @@ describe('milestones', () => {
   it('promotes winner only after winning the final', () => {
     const matches = [
       match({
+        id: 'm101',
         team1: 'Spain',
         team2: 'Germany',
         homeScore: 2,
@@ -35,6 +40,7 @@ describe('milestones', () => {
         roundLabel: 'Semi-final',
       }),
       match({
+        id: 'm104',
         team1: 'Spain',
         team2: 'France',
         homeScore: null,
@@ -48,17 +54,20 @@ describe('milestones', () => {
     expect(hasReachedKnockoutStage('Spain', 'final', matches)).toBe(true);
   });
 
-  it('qualifies from openfootball R32 listing with a real team name', () => {
+  it('qualifies from confirmed R32 listing after group stage is complete', () => {
     const matches = [
+      ...completeGroupStageMatches(),
       match({
         team1: 'Mexico',
-        team2: '3C/E/F/H/I',
+        team2: 'USA',
         homeScore: null,
         awayScore: null,
         stage: 'knockout',
         knockoutRound: 'roundOf32',
         roundLabel: 'Round of 32',
+        id: 'm73',
       }),
+      ...placeholderR32Except(73),
     ];
     expect(hasQualifiedForRoundOf32('Mexico', matches)).toBe(true);
     expect(inferTeamMilestone('Mexico', matches)).toBe('roundOf32');

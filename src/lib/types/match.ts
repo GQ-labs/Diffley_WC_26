@@ -21,6 +21,8 @@ export interface NormalizedMatch {
   date: string;
   kickoffTime?: string;
   decidedByPenalties: boolean;
+  penHomeScore?: number | null;
+  penAwayScore?: number | null;
   group?: string;
 }
 

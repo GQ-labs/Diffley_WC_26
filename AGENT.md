@@ -32,7 +32,7 @@ Summary:
 - **Flags:** `TeamFlag` + `country-flag-icons`; custom SVG for England and Scotland
 - **Typography:** Inter, system fallback
 - **Colour:** neutral greys + one blue accent; respects `prefers-color-scheme`
-- **Tables:** primary UI pattern for leaderboard, teams, and fixtures
+- **Tables:** primary UI pattern for leaderboard, groups, fixtures, and knockout lists
 
 Do not add UI libraries (MUI, Chakra, etc.) unless explicitly requested.
 
@@ -51,7 +51,9 @@ Do not add UI libraries (MUI, Chakra, etc.) unless explicitly requested.
 | `src/context/TournamentContext.tsx` | Fetch, cache, standings, live match polling |
 | `src/lib/results.ts` | Fetch + normalize openfootball JSON |
 | `src/lib/scoring.ts` | Match points, team standings, normalization |
-| `src/lib/milestones.ts` | Knockout progression bonuses (openfootball fixtures only) |
+| `src/lib/groups.ts` | Group standings (A–L), third-place ranking, FIFA tiebreakers |
+| `src/lib/bracket.ts` | Knockout bracket tree, R32 third-place assignment, projections |
+| `src/lib/milestones.ts` | Knockout progression bonuses (bracket tree; R32 gated on server data) |
 | `src/lib/aggregate.ts` | Player/team rankings |
 | `src/lib/fixtures.ts` | Fixture rows for Fixtures tab |
 | `src/lib/fifa.ts` | Resolve FIFA URLs from `data/fifa.json` |
@@ -73,10 +75,18 @@ Do not add UI libraries (MUI, Chakra, etc.) unless explicitly requested.
 - **Current match** card — live score from FIFA API (30s poll); openfootball refresh every 45s while live
 - **Latest results** — up to 3 recent finished matches, FIFA links
 
-### Teams tab
+### Groups tab
 
-- Full 48-team standings; expand row for W/D/L match history with FIFA links
-- **Show player** filter — shows only that player's three teams
+- Twelve group tables (A–L) with live standings, qualification badges, pool points
+- Expand row for W/D/L match history with FIFA links
+- **Show player** filter — shows only that player's teams across groups
+
+### Knockout stage tab
+
+- **Mobile (<768px):** round-by-round match list, full team names + owner labels
+- **Desktop:** horizontal bracket tree; compact cards (flag + 3-letter code + owner); swipe to scroll
+- Live projected bracket from group standings until R32 is confirmed on openfootball
+- No player filter — all teams shown with owner sublabels
 
 ### Fixtures tab
 
@@ -90,8 +100,9 @@ Do not add UI libraries (MUI, Chakra, etc.) unless explicitly requested.
 
 ### URL state
 
-- Tab: `#teams`, `#fixtures`, `#rules` (leaderboard is default, no hash)
-- Player filter: `?player=<id>` — persists across tabs
+- Tab: `#groups`, `#knockout`, `#fixtures`, `#rules` (leaderboard is default, no hash)
+- Legacy `#teams` redirects to `#groups`
+- Player filter: `?player=<id>` — persists across tabs (not used on Knockout stage)
 
 ---
 
@@ -111,7 +122,11 @@ Do not add UI libraries (MUI, Chakra, etc.) unless explicitly requested.
 roundOf32: +1, roundOf16: +1, quarterFinal: +1, semiFinal: +1, final: +1  (max +5)
 ```
 
-Never infer qualification from computed group tables — openfootball knockout fixture slots only.
+Milestones use the **bracket tree** (`src/lib/bracket.ts` + `src/lib/milestones.ts`):
+
+- **R32 bonus:** only after all 72 group matches are complete **and** every R32 fixture on openfootball lists real team names (no `1A` / `2B` / `3A/B/C` placeholders)
+- **R16 onward:** team advanced by winning the previous knockout round (or reaching the next round in the tree from results)
+- The Knockout stage tab shows a **projected** bracket from computed group tables for display; milestone bonuses do not use projections for R32
 
 ### Player total
 
@@ -163,7 +178,7 @@ Run `npm run validate` after edits.
 
 Before pushing significant changes:
 
-1. `npm run qa` passes (validate + 42 tests + typecheck + build)
+1. `npm run qa` passes (validate + 59 tests + typecheck + build)
 2. No emojis introduced
 3. Scoring changes include unit tests
 4. `data/fifa.json` regenerated if FIFA mapping logic changed (`npm run build:fifa`)
@@ -203,7 +218,7 @@ Add mapping in `data/team-aliases.json` under `aliases`. Regenerate FIFA links i
 - Do not use icon font packs — SVG only
 - Do not commit secrets or `.env` files
 - Do not skip scoring tests when changing points logic
-- Do not compute group-stage qualification tables for milestone bonuses
+- Do not award R32 milestone bonuses from projected group tables — wait for openfootball R32 confirmation
 
 ---
 

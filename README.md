@@ -21,22 +21,25 @@ No install, login, or technical setup required.
 | Tab | What you see |
 |-----|----------------|
 | **Leaderboard** | Player rankings, upcoming matches, live current match, three latest results |
-| **Teams** | All 48 teams ranked; expand a row for match-by-match history |
+| **Groups** | Standings for Groups A–L; qualification badges; expand a row for match history |
+| **Knockout stage** | Live projected bracket (phone: round-by-round list; desktop: compact tree with flag + code + owner) |
 | **Fixtures** | Full schedule and results; click a row to open the match on FIFA.com |
 | **Rules** | Scoring explained in plain English |
 
 ### Filter by player
 
-Use **Show player** on Leaderboard, Teams, or Fixtures. The choice is shared across tabs and saved in the URL:
+Use **Show player** on Leaderboard, Groups, or Fixtures. The choice is shared across tabs and saved in the URL:
 
 `https://gq-labs.github.io/Diffley_WC_26/?player=sam`
 
 Use the `id` slug from `data/draft.json` (e.g. `sam`, `florian`, `john`).
 
+The **Knockout stage** tab always shows the full tournament bracket with lab member names on every team.
+
 ### FIFA links
 
 - Team names link to official FIFA team pages.
-- Fixture rows, recent results, upcoming matches, and the live match card link to FIFA match pages where available.
+- Fixture rows, recent results, upcoming matches, knockout matches, and the live match card link to FIFA match pages where available.
 
 ---
 
@@ -44,12 +47,14 @@ Use the `id` slug from `data/draft.json` (e.g. `sam`, `florian`, `john`).
 
 ### Local development
 
+Requires **Node.js 20+** (install via [nodejs.org](https://nodejs.org), Homebrew, or `conda install -c conda-forge nodejs`).
+
 ```bash
 npm install
 npm run dev
 ```
 
-Open http://localhost:5173
+Open http://localhost:5173 — stop the dev server with **Ctrl+C**.
 
 ### Build and QA
 
@@ -79,7 +84,7 @@ Run `npm run validate` to check constraints (16 players, 48 unique teams, canoni
 
 ### Updating scoring rules
 
-Edit `data/scoring.json`. Match points and knockout progression bonuses are config-driven.
+Edit `data/scoring.json`. Match points, knockout progression bonuses, and Rules tab copy are config-driven.
 
 ### Manual result overrides
 
@@ -133,10 +138,11 @@ Commit the updated `data/fifa.json` after running. Required when FIFA slugs chan
 | Semi-final | +1 | 4 |
 | Final | +1 | 5 |
 
-Bonuses use **openfootball knockout fixtures only** — we do not compute group tables.
+Bonuses follow the **tournament bracket tree** (who actually advances).
 
-- A team earns +1 when they are slotted into a round or win through to the next
-- **During groups:** knockout bonus stays 0 until the R32 bracket is filled in
+- **Round of 32:** bonus is awarded only after all 72 group matches are complete **and** openfootball lists real team names in every R32 fixture (not placeholders like `2A`)
+- **Later rounds:** decided from knockout match results in the bracket
+- **During groups:** knockout bonuses stay 0 until R32 is confirmed on the server
 - **Winner:** no extra bonus beyond reaching the final (the final win is rewarded via match points)
 
 **Player total** = sum of all three teams' match points + progression bonuses.
@@ -156,9 +162,9 @@ scripts/
   validate-draft.mjs    # draft.json checks
   build-fifa-links.mjs  # Regenerate data/fifa.json from FIFA API
 src/
-  components/           # UI (tabs, tables, cards, flags)
+  components/           # UI (tabs, tables, cards, flags, bracket)
   context/              # TournamentProvider — fetch, cache, live polling
-  lib/                  # Scoring engine, FIFA links, live match, fixtures
+  lib/                  # Scoring, groups, bracket, FIFA links, fixtures
   styles/               # Design tokens and global CSS
   types/                # TypeScript types
 docs/
@@ -183,7 +189,7 @@ AGENT.md                # Guide for AI agents / future maintainers
 
 ## Status
 
-Feature-complete for WC 2026. Core build phases (scoring engine, real data, cache, deploy, QA) are done. Ongoing maintenance: `npm run qa` before pushes, `npm run build:fifa` if FIFA URLs need refreshing.
+Feature-complete for WC 2026. Includes group standings, live projected knockout bracket, and bracket-based milestone scoring. Ongoing maintenance: `npm run qa` before pushes, `npm run build:fifa` if FIFA URLs need refreshing.
 
 ---
 

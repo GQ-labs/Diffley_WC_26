@@ -4,16 +4,16 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "preview": "vite preview",
-    "preview:pages": "npm run build && vite preview --base /Diffley_WC_26/",
+    "dev": "node ./node_modules/vite/bin/vite.js",
+    "build": "tsc -b && node ./node_modules/vite/bin/vite.js build",
+    "preview": "node ./node_modules/vite/bin/vite.js preview",
+    "preview:pages": "npm run build && node ./node_modules/vite/bin/vite.js preview --base /Diffley_WC_26/",
     "typecheck": "tsc -b --noEmit",
     "validate": "node scripts/validate-draft.mjs",
     "build:fifa": "node scripts/build-fifa-links.mjs",
     "qa": "npm run validate && npm run test && npm run typecheck && npm run build",
-    "test": "vitest run",
-    "test:watch": "vitest"
+    "test": "node ./node_modules/vitest/vitest.mjs run",
+    "test:watch": "node ./node_modules/vitest/vitest.mjs"
   },
   "dependencies": {
     "country-flag-icons": "^1.6.17",

@@ -7,14 +7,18 @@ import { IconTrophy } from './components/icons/IconTrophy';
 import { TabNav, tabButtonId, tabPanelId } from './components/layout/TabNav';
 import { Button } from './components/ui/Button';
 import { LeaderboardTab } from './components/tabs/LeaderboardTab';
-import { TeamsTab } from './components/tabs/TeamsTab';
+import { GroupsTab } from './components/tabs/GroupsTab';
+import { KnockoutTab } from './components/tabs/KnockoutTab';
 import { FixturesTab } from './components/tabs/FixturesTab';
 import { RulesTab } from './components/tabs/RulesTab';
 import { CacheBanner } from './components/ui/CacheBanner';
 
 function tabFromHash(): AppTab {
   const hash = window.location.hash.replace('#', '');
-  if (hash === 'teams' || hash === 'fixtures' || hash === 'rules') return hash;
+  if (hash === 'teams') return 'groups';
+  if (hash === 'groups' || hash === 'knockout' || hash === 'fixtures' || hash === 'rules') {
+    return hash;
+  }
   return 'leaderboard';
 }
 
@@ -127,15 +131,25 @@ function AppShell() {
 
         <div
           role="tabpanel"
-          id={tabPanelId('teams')}
-          aria-labelledby={tabButtonId('teams')}
-          hidden={activeTab !== 'teams'}
-          inert={activeTab !== 'teams' ? true : undefined}
+          id={tabPanelId('groups')}
+          aria-labelledby={tabButtonId('groups')}
+          hidden={activeTab !== 'groups'}
+          inert={activeTab !== 'groups' ? true : undefined}
         >
-          <TeamsTab
+          <GroupsTab
             playerFilter={playerFilter}
             onPlayerFilterChange={changePlayerFilter}
           />
+        </div>
+
+        <div
+          role="tabpanel"
+          id={tabPanelId('knockout')}
+          aria-labelledby={tabButtonId('knockout')}
+          hidden={activeTab !== 'knockout'}
+          inert={activeTab !== 'knockout' ? true : undefined}
+        >
+          <KnockoutTab />
         </div>
 
         <div

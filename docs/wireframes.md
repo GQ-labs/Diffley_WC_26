@@ -26,18 +26,26 @@ Screen-by-screen specification for the shipped app. Use this when changing layou
 
 | Step | Screen | Element |
 |------|--------|---------|
-| 1 | Any tab | **Show player** dropdown (shared `?player=` URL) |
-| 2 | Teams | Three teams only; expand for match history |
+| 1 | Leaderboard, Groups, or Fixtures | **Show player** dropdown (shared `?player=` URL) |
+| 2 | Groups | That player's teams in their groups; expand for match history |
 | 3 | Fixtures | Matches involving those teams only |
 
-### 4. Full fixture list / FIFA details
+### 4. Who plays whom in the knockouts?
+
+| Step | Screen | Element |
+|------|--------|---------|
+| 1 | Knockout stage | Projected or confirmed bracket |
+| 2 | Mobile | Round-by-round list with full team names + owners |
+| 3 | Desktop | Compact tree (flag + code + owner); swipe sideways |
+
+### 5. Full fixture list / FIFA details
 
 | Step | Screen | Element |
 |------|--------|---------|
 | 1 | Fixtures | Chronological table; click row for FIFA match page |
 | 2 | — | Team names link to FIFA team pages throughout app |
 
-### 5. How are points calculated?
+### 6. How are points calculated?
 
 | Step | Screen | Element |
 |------|--------|---------|
@@ -48,18 +56,18 @@ Screen-by-screen specification for the shipped app. Use this when changing layou
 ## Global shell
 
 ```
-+----------------------------------------------------------+
-| [trophy] DIFFLEY LAB          N played · Updated  [Ref] |
-|          World Cup 2026                                   |
-+----------------------------------------------------------+
-| Leaderboard | Teams | Fixtures | Rules                    |
-+----------------------------------------------------------+
-|                                                           |
-|  (active tab content)                                     |
-|                                                           |
-+----------------------------------------------------------+
-| 16 players · 48 teams · Points tracker                    |
-+----------------------------------------------------------+
++------------------------------------------------------------------+
+| [trophy] DIFFLEY LAB          N played · Updated  [Ref]          |
+|          World Cup 2026                                           |
++------------------------------------------------------------------+
+| Leaderboard | Groups | Knockout stage | Fixtures | Rules         |
++------------------------------------------------------------------+
+|                                                                   |
+|  (active tab content)                                             |
+|                                                                   |
++------------------------------------------------------------------+
+| 16 players · 48 teams · Points tracker                            |
++------------------------------------------------------------------+
 ```
 
 - **Header:** Brand left; status + global Refresh right (stacks on mobile)
@@ -77,7 +85,7 @@ Screen-by-screen specification for the shipped app. Use this when changing layou
 **Left — Upcoming matches**
 
 - Label + US matchday subtitle
-- List: UK kickoff time | teams | round
+- List: UK kickoff time | teams + owners | round
 - Each row links to FIFA when mapped
 
 **Right — stacked**
@@ -99,20 +107,52 @@ Screen-by-screen specification for the shipped app. Use this when changing layou
 
 ---
 
-## Tab: Teams
+## Tab: Groups
 
-All 48 teams (or 3 when player filtered), ranked by total points.
+Twelve sections (Group A through L). URL: `/#groups` (legacy `/#teams` redirects here).
 
 | Column | Notes |
 |--------|-------|
-| # | Global tournament rank |
-| Team | Flag + name + chevron |
+| # | Position in group |
+| Team | Flag + name + qualification badge + chevron |
 | Owner | Player nickname |
-| P / Match / Milestone / Bonus / Total | As leaderboard |
+| P / W-D-L / GD / Grp | Group-stage stats |
+| Pool | Total pool points for that team |
 
-**Expand row:** match history list — W/D/L badge, score, opponent, round, FIFA link.
+**Qualification badges:** Qualified, Best 3rd, In contention, Out (with `?` when projected).
 
-**Show player** in page header.
+**Expand row:** match history — W/D/L badge, score, opponent, round, FIFA link, milestone note.
+
+**Show player** in page header — filters to that player's teams across groups.
+
+---
+
+## Tab: Knockout stage
+
+URL: `/#knockout`. No player filter.
+
+### Mobile (<768px)
+
+Round-by-round sections:
+
+1. Round of 32 (M73–M88)
+2. Round of 16
+3. Quarter-final
+4. Semi-final
+5. Match for third place
+6. Final
+
+Each match card: M-number, `proj.` if projected, full team names + owner sublabels, score or `vs`.
+
+### Desktop (768px+)
+
+Horizontal bracket tree, seven columns, swipe to scroll on medium widths.
+
+- Compact matchup: flag + 3-letter code + owner (e.g. `KOR` / Yuki)
+- `proj.` on projected slots; dashed border
+- Final highlighted with accent card
+
+Legend: projected slot dot, result-in dot.
 
 ---
 
@@ -133,7 +173,9 @@ All 48 teams (or 3 when player filtered), ranked by total points.
 
 ## Tab: Rules
 
-Card stack from `data/scoring.json` — overview, match points, penalties, knockout table, player total.
+Card stack from `data/scoring.json` — overview, match points, penalties, knockout progression table, player total.
+
+Knockout milestone copy explains bracket-tree logic and R32 server confirmation gate.
 
 ---
 
@@ -145,11 +187,13 @@ Card stack from `data/scoring.json` — overview, match points, penalties, knock
 | DataTable | `src/components/ui/DataTable.tsx` |
 | PlayerFilter | `src/components/ui/PlayerFilter.tsx` |
 | TeamName, TeamFlag, FixtureMatchup | `src/components/ui/TeamName.tsx`, `TeamFlag.tsx` |
+| BracketMatchup | `src/components/ui/BracketMatchup.tsx` |
 | UpcomingMatchesCard | `src/components/ui/UpcomingMatchesCard.tsx` |
 | CurrentMatchCard | `src/components/ui/CurrentMatchCard.tsx` |
 | RecentResultsCard | `src/components/ui/RecentResultsCard.tsx` |
 | LeaderboardTab | `src/components/tabs/LeaderboardTab.tsx` |
-| TeamsTab | `src/components/tabs/TeamsTab.tsx` |
+| GroupsTab | `src/components/tabs/GroupsTab.tsx` |
+| KnockoutTab | `src/components/tabs/KnockoutTab.tsx` |
 | FixturesTab | `src/components/tabs/FixturesTab.tsx` |
 | RulesTab | `src/components/tabs/RulesTab.tsx` |
 
@@ -159,8 +203,10 @@ Card stack from `data/scoring.json` — overview, match points, penalties, knock
 
 | Param | Example | Effect |
 |-------|---------|--------|
-| `?player=sam` | `?player=sam#fixtures` | Filter player on Leaderboard, Teams, Fixtures |
-| `#teams` | `/#teams` | Open Teams tab |
+| `?player=sam` | `?player=sam#fixtures` | Filter player on Leaderboard, Groups, Fixtures |
+| `#groups` | `/#groups` | Open Groups tab |
+| `#teams` | `/#teams` | Redirects to Groups tab |
+| `#knockout` | `/#knockout` | Open Knockout stage tab |
 | `#fixtures` | `/#fixtures` | Open Fixtures tab |
 | `#rules` | `/#rules` | Open Rules tab |
 

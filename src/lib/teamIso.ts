@@ -50,6 +50,62 @@ export const TEAM_ISO: Record<string, string> = {
   Uzbekistan: 'UZ',
 };
 
+/** FIFA-style three-letter codes for compact bracket display. */
+export const TEAM_CODE: Record<string, string> = {
+  Algeria: 'ALG',
+  Argentina: 'ARG',
+  Australia: 'AUS',
+  Austria: 'AUT',
+  Belgium: 'BEL',
+  Bosnia: 'BIH',
+  Brazil: 'BRA',
+  Canada: 'CAN',
+  'Cape Verde': 'CPV',
+  Colombia: 'COL',
+  Congo: 'COD',
+  Croatia: 'CRO',
+  Curacao: 'CUW',
+  Czechia: 'CZE',
+  Ecuador: 'ECU',
+  Egypt: 'EGY',
+  England: 'ENG',
+  France: 'FRA',
+  Germany: 'GER',
+  Ghana: 'GHA',
+  Haiti: 'HAI',
+  Iran: 'IRN',
+  Iraq: 'IRQ',
+  'Ivory Coast': 'CIV',
+  Japan: 'JPN',
+  Jordan: 'JOR',
+  Korea: 'KOR',
+  Mexico: 'MEX',
+  Morocco: 'MAR',
+  Netherlands: 'NED',
+  'New Zealand': 'NZL',
+  Norway: 'NOR',
+  Panama: 'PAN',
+  Paraguay: 'PAR',
+  Portugal: 'POR',
+  Qatar: 'QAT',
+  'Saudi Arabia': 'KSA',
+  Scotland: 'SCO',
+  Senegal: 'SEN',
+  'South Africa': 'RSA',
+  Spain: 'ESP',
+  Sweden: 'SWE',
+  Switzerland: 'SUI',
+  Tunisia: 'TUN',
+  Turkey: 'TUR',
+  Uruguay: 'URU',
+  USA: 'USA',
+  Uzbekistan: 'UZB',
+};
+
 export function getTeamIso(team: string): string | undefined {
   return TEAM_ISO[team];
+}
+
+export function getTeamCode(team: string): string {
+  return TEAM_CODE[team] ?? team.slice(0, 3).toUpperCase();
 }

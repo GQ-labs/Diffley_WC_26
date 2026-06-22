@@ -35,4 +35,4 @@ export interface ScoringConfig {
   rulesText: Record<string, string>;
 }
 
-export type AppTab = 'leaderboard' | 'teams' | 'fixtures' | 'rules';
+export type AppTab = 'leaderboard' | 'groups' | 'knockout' | 'fixtures' | 'rules';
