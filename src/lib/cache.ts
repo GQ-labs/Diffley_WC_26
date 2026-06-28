@@ -1,6 +1,6 @@
 import type { NormalizedMatch } from './types/match';
 
-export const CACHE_KEY = 'diffley-wc-26-matches-v1';
+export const CACHE_KEY = 'diffley-wc-26-matches-v2';
 
 export interface CachedMatchesPayload {
   fetchedAt: string;

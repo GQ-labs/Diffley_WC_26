@@ -6,6 +6,7 @@ import {
   rankThirdPlaceTeams,
   type GroupTable,
 } from './groups';
+import { assignThirdPlaceTeams } from './thirdPlaceAnnex';
 import type { KnockoutMilestoneKey, NormalizedMatch } from './types/match';
 
 export interface BracketMatch {
@@ -58,19 +59,6 @@ const R32_TEMPLATES: Array<{ num: number; team1: string; team2: string }> = [
   { num: 88, team1: '2D', team2: '2G' },
 ];
 
-const THIRD_PLACE_ASSIGNMENT_ORDER = [74, 77, 79, 80, 81, 82, 85, 87] as const;
-
-const THIRD_SLOT_ELIGIBILITY: Record<number, string> = {
-  74: '3A/B/C/D/F',
-  77: '3C/D/F/G/H',
-  79: '3C/E/F/H/I',
-  80: '3E/H/I/J/K',
-  81: '3B/E/F/I/J',
-  82: '3A/E/H/I/J',
-  85: '3E/F/G/I/J',
-  87: '3D/E/I/J/L',
-};
-
 const LATER_ROUNDS: Array<{
   num: number;
   round: KnockoutMilestoneKey | 'thirdPlace';
@@ -108,36 +96,6 @@ function matchesByNum(matches: NormalizedMatch[]): Map<number, NormalizedMatch> 
     if (num) map.set(num, match);
   }
   return map;
-}
-
-function parseThirdEligibleGroups(placeholder: string): string[] {
-  if (!placeholder.startsWith('3')) return [];
-  return placeholder.slice(1).split('/');
-}
-
-function assignThirdPlaceTeams(tables: GroupTable[]) {
-  const thirdRankings = rankThirdPlaceTeams(tables);
-  const advancing = new Set(
-    thirdRankings.filter((entry) => entry.advances).map((entry) => entry.letter),
-  );
-  const assignedLetters = new Set<string>();
-  const byMatchNum = new Map<number, string>();
-
-  for (const num of THIRD_PLACE_ASSIGNMENT_ORDER) {
-    const eligible = parseThirdEligibleGroups(THIRD_SLOT_ELIGIBILITY[num]);
-    const pick = thirdRankings.find(
-      (entry) =>
-        eligible.includes(entry.letter) &&
-        advancing.has(entry.letter) &&
-        !assignedLetters.has(entry.letter),
-    );
-    if (pick) {
-      byMatchNum.set(num, pick.team);
-      assignedLetters.add(pick.letter);
-    }
-  }
-
-  return byMatchNum;
 }
 
 function teamAtGroupRank(
@@ -290,6 +248,28 @@ function buildResolvedMatch(
   projectedLosers: Map<number, string>,
 ): BracketMatch {
   const server = byNum.get(template.num);
+
+  if (
+    server &&
+    isCanonicalTeamName(server.team1) &&
+    isCanonicalTeamName(server.team2)
+  ) {
+    const winner = getMatchWinner(server);
+    return {
+      num: template.num,
+      round: template.round,
+      roundLabel: template.roundLabel,
+      team1: server.team1,
+      team2: server.team2,
+      homeScore: server.homeScore,
+      awayScore: server.awayScore,
+      date: server.date,
+      winner,
+      projected: false,
+      matchId: server.id,
+    };
+  }
+
   const resolveTeam1 =
     template.team1.startsWith('W') || template.team1.startsWith('L')
       ? resolveFeedSlot(
