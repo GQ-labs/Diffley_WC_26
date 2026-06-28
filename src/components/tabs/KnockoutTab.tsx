@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 import { useTournament } from '../../context/TournamentContext';
 import {
   bracketMatchShowsFeederPaths,
@@ -6,8 +6,20 @@ import {
   formatFeederSlot,
   getBracketFeederTemplate,
   type BracketMatch,
-  type BracketTree,
 } from '../../lib/bracket';
+import {
+  BRACKET_COLUMN_INDEX,
+  CENTER_ORDER,
+  DESKTOP_COLUMN_LABELS,
+  getBracketSlot,
+  LEFT_QF_ORDER,
+  LEFT_R16_ORDER,
+  LEFT_R32_ORDER,
+  LIST_R32_ORDER,
+  RIGHT_QF_ORDER,
+  RIGHT_R16_ORDER,
+  RIGHT_R32_ORDER,
+} from '../../lib/bracketLayout';
 import { useTeamOwners } from '../../hooks/useTeamOwners';
 import { getFifaMatchUrl } from '../../lib/fifa';
 import { PageHeader } from '../layout/TabNav';
@@ -15,22 +27,14 @@ import { BracketMatchup } from '../ui/BracketMatchup';
 import { LoadingState } from '../ui/LoadingState';
 import { ErrorState } from '../ui/StatusMessage';
 import { FixtureMatchupWithOwners } from '../ui/TeamName';
+import { BracketConnectors } from './BracketConnectors';
 import styles from './KnockoutTab.module.css';
-
-const LEFT_R32 = [73, 74, 75, 76, 77, 78, 79, 80];
-const RIGHT_R32 = [81, 82, 83, 84, 85, 86, 87, 88];
-const LEFT_R16 = [89, 90, 91, 92];
-const RIGHT_R16 = [93, 94, 95, 96];
-const LEFT_QF = [97, 99];
-const RIGHT_QF = [98, 100];
 
 const ROUND_SECTIONS: Array<{ id: string; label: string; nums: number[] }> = [
   {
     id: 'r32',
     label: 'Round of 32',
-    nums: [
-      73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88,
-    ],
+    nums: [...LIST_R32_ORDER],
   },
   { id: 'r16', label: 'Round of 16', nums: [89, 90, 91, 92, 93, 94, 95, 96] },
   { id: 'qf', label: 'Quarter-final', nums: [97, 98, 99, 100] },
@@ -39,9 +43,20 @@ const ROUND_SECTIONS: Array<{ id: string; label: string; nums: number[] }> = [
   { id: 'final', label: 'Final', nums: [104] },
 ];
 
+const DESKTOP_MATCH_ORDER = [
+  ...LEFT_R32_ORDER,
+  ...LEFT_R16_ORDER,
+  ...LEFT_QF_ORDER,
+  ...CENTER_ORDER,
+  ...RIGHT_QF_ORDER,
+  ...RIGHT_R16_ORDER,
+  ...RIGHT_R32_ORDER,
+] as const;
+
 export function KnockoutTab() {
   const { loading, error, matches, refresh } = useTournament();
   const owners = useTeamOwners();
+  const gridRef = useRef<HTMLDivElement>(null);
 
   const bracket = useMemo(() => buildBracketTree(matches), [matches]);
 
@@ -59,6 +74,15 @@ export function KnockoutTab() {
     }
     return map;
   }, [bracket]);
+
+  const connectorKey = useMemo(
+    () =>
+      DESKTOP_MATCH_ORDER.map((num) => {
+        const match = byNum.get(num);
+        return `${num}:${match?.team1}:${match?.team2}:${match?.homeScore}`;
+      }).join('|'),
+    [byNum],
+  );
 
   if (loading && matches.length === 0) return <LoadingState />;
   if (error && matches.length === 0) {
@@ -125,132 +149,47 @@ export function KnockoutTab() {
       <div className={styles.desktopBracket}>
         <p className={styles.scrollHint}>Swipe sideways for the full bracket</p>
         <div className={styles.bracketScroll}>
-          <div className={styles.bracket}>
-            <BracketColumn
-              label="Round of 32"
-              matchNums={LEFT_R32}
-              byNum={byNum}
-              owners={owners}
-            />
-            <BracketColumn
-              label="Round of 16"
-              matchNums={LEFT_R16}
-              byNum={byNum}
-              owners={owners}
-            />
-            <BracketColumn
-              label="Quarter-final"
-              matchNums={LEFT_QF}
-              byNum={byNum}
-              owners={owners}
-            />
-            <CenterBracketColumn
-              byNum={byNum}
-              owners={owners}
-              bracket={bracket}
-            />
-            <BracketColumn
-              label="Quarter-final"
-              matchNums={RIGHT_QF}
-              byNum={byNum}
-              owners={owners}
-              alignEnd
-            />
-            <BracketColumn
-              label="Round of 16"
-              matchNums={RIGHT_R16}
-              byNum={byNum}
-              owners={owners}
-              alignEnd
-            />
-            <BracketColumn
-              label="Round of 32"
-              matchNums={RIGHT_R32}
-              byNum={byNum}
-              owners={owners}
-              alignEnd
-            />
+          <div className={styles.bracketHeaders}>
+            {DESKTOP_COLUMN_LABELS.map(({ id, label }) => (
+              <p key={id} className={styles.columnLabel}>
+                {label}
+              </p>
+            ))}
+          </div>
+          <div className={styles.bracketGrid} ref={gridRef}>
+            <BracketConnectors gridRef={gridRef} layoutKey={connectorKey} />
+            {DESKTOP_MATCH_ORDER.map((num) => {
+              const match = byNum.get(num);
+              const slot = getBracketSlot(num);
+              if (!match || !slot) return null;
+
+              const column = BRACKET_COLUMN_INDEX[slot.column];
+              const alignEnd =
+                slot.column === 'r32-right' ||
+                slot.column === 'r16-right' ||
+                slot.column === 'qf-right';
+
+              return (
+                <div
+                  key={num}
+                  className={`${styles.matchSlot} ${alignEnd ? styles.matchSlotEnd : ''}`}
+                  style={{ gridColumn: column, gridRow: slot.row }}
+                >
+                  <BracketMatchCard
+                    match={match}
+                    owners={owners}
+                    layout="compact"
+                    featured={match.round === 'final'}
+                    subdued={match.round === 'thirdPlace'}
+                    bracketAnchor
+                  />
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
     </section>
-  );
-}
-
-function BracketColumn({
-  label,
-  matchNums,
-  byNum,
-  owners,
-  alignEnd = false,
-}: {
-  label: string;
-  matchNums: number[];
-  byNum: Map<number, BracketMatch>;
-  owners: ReturnType<typeof useTeamOwners>;
-  alignEnd?: boolean;
-}) {
-  return (
-    <div className={`${styles.column} ${alignEnd ? styles.columnEnd : ''}`}>
-      <p className={styles.columnLabel}>{label}</p>
-      <div className={styles.columnMatches}>
-        {matchNums.map((num) => {
-          const match = byNum.get(num);
-          if (!match) return null;
-          return (
-            <BracketMatchCard
-              key={num}
-              match={match}
-              owners={owners}
-              layout="compact"
-            />
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-function CenterBracketColumn({
-  byNum,
-  owners,
-  bracket,
-}: {
-  byNum: Map<number, BracketMatch>;
-  owners: ReturnType<typeof useTeamOwners>;
-  bracket: BracketTree;
-}) {
-  const slots: Array<{
-    match: BracketMatch;
-    featured?: boolean;
-    subdued?: boolean;
-  }> = [];
-
-  const sf101 = byNum.get(101);
-  const sf102 = byNum.get(102);
-  if (sf101) slots.push({ match: sf101 });
-  if (bracket.final) slots.push({ match: bracket.final, featured: true });
-  if (bracket.thirdPlace) {
-    slots.push({ match: bracket.thirdPlace, subdued: true });
-  }
-  if (sf102) slots.push({ match: sf102 });
-
-  return (
-    <div className={styles.column}>
-      <p className={styles.columnLabel}>Semi-final</p>
-      <div className={styles.columnMatches}>
-        {slots.map(({ match, featured, subdued }) => (
-          <BracketMatchCard
-            key={match.num}
-            match={match}
-            owners={owners}
-            layout="compact"
-            featured={featured}
-            subdued={subdued}
-          />
-        ))}
-      </div>
-    </div>
   );
 }
 
@@ -284,12 +223,14 @@ function BracketMatchCard({
   layout,
   featured = false,
   subdued = false,
+  bracketAnchor = false,
 }: {
   match: BracketMatch;
   owners: ReturnType<typeof useTeamOwners>;
   layout: 'list' | 'compact';
   featured?: boolean;
   subdued?: boolean;
+  bracketAnchor?: boolean;
 }) {
   const score =
     match.homeScore !== null && match.awayScore !== null
@@ -319,6 +260,7 @@ function BracketMatchCard({
         match.projected && !showFeeders ? styles.matchProjected : ''
       }`}
       aria-label={`${match.roundLabel} match ${match.num}, ${matchupLabel}`}
+      {...(bracketAnchor ? { 'data-bracket-match': match.num } : {})}
     >
       <div className={styles.matchMeta}>
         <span>M{match.num}</span>
@@ -368,6 +310,7 @@ function BracketMatchCard({
       rel="noopener noreferrer"
       className={styles.matchLink}
       aria-label={`${match.team1} vs ${match.team2} on FIFA.com`}
+      {...(bracketAnchor ? { 'data-bracket-match': match.num } : {})}
     >
       {card}
     </a>
