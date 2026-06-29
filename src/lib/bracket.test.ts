@@ -105,4 +105,52 @@ describe('bracket', () => {
     expect(r16).toBeDefined();
     expect(bracketMatchShowsFeederPaths(r16!)).toBe(true);
   });
+
+  it('carries confirmed knockout winners into the next round', () => {
+    const base = completeGroupStageMatches();
+    const projected = buildBracketTree(base);
+    const m73 = projected.roundOf32.find((match) => match.num === 73)!;
+    const m75 = projected.roundOf32.find((match) => match.num === 75)!;
+
+    const matches = [
+      ...base,
+      koMatch(73, m73.team1, m73.team2, 'roundOf32', 2, 0),
+      koMatch(75, m75.team1, m75.team2, 'roundOf32', 1, 0),
+    ];
+
+    const tree = buildBracketTree(matches);
+    const m90 = tree.roundOf16.find((match) => match.num === 90);
+
+    expect(m90?.team1).toBe(m73.team1);
+    expect(m90?.team2).toBe(m75.team1);
+    expect(bracketMatchShowsFeederPaths(m90!)).toBe(false);
+  });
+
+  it('carries winners through quarter-finals', () => {
+    const base = completeGroupStageMatches();
+    const projected = buildBracketTree(base);
+
+    const r32Results = [73, 74, 75, 77].map((num) => {
+      const match = projected.roundOf32.find((entry) => entry.num === num)!;
+      return koMatch(num, match.team1, match.team2, 'roundOf32', 1, 0);
+    });
+
+    const afterR32 = buildBracketTree([...base, ...r32Results]);
+    const m89 = afterR32.roundOf16.find((match) => match.num === 89)!;
+    const m90 = afterR32.roundOf16.find((match) => match.num === 90)!;
+
+    const matches = [
+      ...base,
+      ...r32Results,
+      koMatch(89, m89.team1, m89.team2, 'roundOf16', 2, 1),
+      koMatch(90, m90.team1, m90.team2, 'roundOf16', 1, 0),
+    ];
+
+    const tree = buildBracketTree(matches);
+    const m97 = tree.quarterFinals.find((match) => match.num === 97);
+
+    expect(m97?.team1).toBe(m89.team1);
+    expect(m97?.team2).toBe(m90.team1);
+    expect(bracketMatchShowsFeederPaths(m97!)).toBe(false);
+  });
 });

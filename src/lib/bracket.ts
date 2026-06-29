@@ -590,9 +590,13 @@ export function bracketMatchHasResult(match: BracketMatch): boolean {
   );
 }
 
-/** Show M73-style feeder paths instead of projected countries. */
+/** Show M73-style feeder paths when both slots are still open. */
 export function bracketMatchShowsFeederPaths(match: BracketMatch): boolean {
   if (match.round === 'roundOf32') return false;
   if (bracketMatchHasResult(match)) return false;
-  return getBracketFeederTemplate(match.num) !== null;
+  if (getBracketFeederTemplate(match.num) === null) return false;
+
+  const team1Known = isCanonicalTeamName(match.team1);
+  const team2Known = isCanonicalTeamName(match.team2);
+  return !team1Known && !team2Known;
 }
